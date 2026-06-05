@@ -1,0 +1,961 @@
+import { useState, useEffect, useRef } from "react";
+
+const C = {
+  bg: "#0f0f1a", surf: "#1a1a2e", surf2: "#22223a", surf3: "#2a2a45",
+  red: "#ff4466", orange: "#ffaa00", yellow: "#ffd700", green: "#00e676",
+  teal: "#00e5d1", blue: "#2266ff", purple: "#c084fc", pink: "#ff6b9d",
+  white: "#ffffff", gray: "#8888aa", lgray: "#ccccdd", osrs: "#ff6b35",
+};
+const gBrand = "linear-gradient(90deg,#ff4466,#ffaa00,#ffd700)";
+const gRed = { background: "linear-gradient(90deg,#ff4466,#ffaa00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" };
+
+function ri(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+function rf(a, b) { return +(Math.random() * (b - a) + a).toFixed(1); }
+
+const DIMS = [
+  { id: "sitting", name: "พฤติกรรมนั่ง", weight: 0.22, icon: "🪑", col: "#ff4466" },
+  { id: "posture", name: "ท่าทาง", weight: 0.20, icon: "🧍", col: "#ffaa00" },
+  { id: "mental", name: "ความเครียด", weight: 0.18, icon: "🧠", col: "#c084fc" },
+  { id: "eye", name: "สายตา", weight: 0.15, icon: "👁️", col: "#00e5d1" },
+  { id: "physical", name: "กายภาพ", weight: 0.12, icon: "🤸", col: "#00e676" },
+  { id: "sleep", name: "นอนหลับ", weight: 0.08, icon: "😴", col: "#99ccff" },
+  { id: "nutrition", name: "น้ำ/โภชนาการ", weight: 0.05, icon: "💧", col: "#2266ff" },
+];
+
+function Ring({ val, size = 80, color, sub, glow = false }) {
+  const r = size / 2 - 8, circ = 2 * Math.PI * r;
+  const fill = Math.min(val / 100, 1) * circ * 0.75, off = circ * 0.125;
+  return (
+    <div style={{ position: "relative", width: size, height: size, filter: glow ? `drop-shadow(0 0 8px ${color})` : "none" }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-135deg)" }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1e1e3a" strokeWidth={7} strokeDasharray={`${circ * 0.75} ${circ}`} strokeDashoffset={-off} strokeLinecap="round" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={7} strokeDasharray={`${fill} ${circ}`} strokeDashoffset={-off} strokeLinecap="round" style={{ transition: "stroke-dasharray 0.8s" }} />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: size > 80 ? 22 : size > 60 ? 17 : 13, fontWeight: "bold", color, lineHeight: 1 }}>{Math.round(val)}</div>
+        {sub && <div style={{ fontSize: 9, color: C.gray, marginTop: 2 }}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+function Bar({ val, color, h = 5 }) {
+  return (
+    <div style={{ height: h, background: "#1e1e3a", borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ height: "100%", width: `${Math.min(100, val)}%`, background: color, borderRadius: 3, transition: "width 0.6s" }} />
+    </div>
+  );
+}
+
+// ── Smart Stretch iframe (NO assessment, full game only) ──
+function SmartStretchTab({ osrs, osrsColor, stress, emotion }) {
+  const blobRef = useRef(null);
+  const [loaded, setLoaded] = useState(false);
+
+  const gameHtml = `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Smart Stretch Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"><\/script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Prompt',sans-serif;background:linear-gradient(135deg,#0f0f1a 0%,#1a1030 100%);min-height:100vh;color:white;overflow-x:hidden}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.wrap{max-width:1080px;margin:0 auto;padding:1rem}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.07);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);border-radius:1rem;padding:.625rem 1.125rem;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.brand{display:flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:900}
+.brand .g{background:linear-gradient(90deg,#ff4466,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:2rem;padding:.3rem .875rem;font-size:.8rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
+.chip-osrs{background:rgba(255,107,53,.15);border-color:rgba(255,107,53,.4)}
+.chip-hr{background:rgba(255,68,102,.15);border-color:rgba(255,68,102,.4)}
+
+/* LAYOUT */
+.main{display:grid;grid-template-columns:1.05fr .95fr;gap:1rem}
+.col{display:flex;flex-direction:column;gap:.875rem}
+
+/* CARD */
+.card{background:rgba(255,255,255,.06);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:1rem;padding:1.125rem}
+.card-title{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.5;margin-bottom:.875rem;display:flex;align-items:center;gap:.4rem}
+
+/* CAMERA */
+#cam-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#050510;border-radius:.875rem;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+#webcam{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#sk-canvas{position:absolute;inset:0;width:100%;height:100%}
+.cam-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(5,5,16,.9);gap:.75rem;z-index:10}
+.cam-ov-icon{font-size:2.5rem}
+.cam-ov-txt{font-size:.875rem;opacity:.75}
+.cam-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:.75rem;padding:.7rem 1.5rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .25s;width:100%;max-width:220px}
+.cam-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}
+.cam-btn.demo-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);margin-top:.25rem}
+.reba-corner{position:absolute;top:.5rem;right:.5rem;z-index:5;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);border-radius:.5rem;padding:.3rem .625rem;font-size:.75rem;font-weight:700;border:1px solid rgba(255,255,255,.1)}
+
+/* HEALTH MINI */
+.health-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.75rem}
+.hm{background:rgba(0,0,0,.3);border-radius:.625rem;padding:.625rem;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.hm-val{font-size:1.2rem;font-weight:900;line-height:1}
+.hm-lbl{font-size:.6rem;opacity:.45;margin-top:.15rem}
+.hm-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:.35rem;overflow:hidden}
+.hm-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+
+/* OSRS PANEL */
+.osrs-panel{background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.25);border-radius:.875rem;padding:.875rem}
+.osrs-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.625rem}
+.osrs-label{font-size:.65rem;font-weight:700;color:#ff9f7a;letter-spacing:1.5px;text-transform:uppercase}
+.osrs-num{font-size:2rem;font-weight:900;color:#ff6b35;line-height:1}
+.osrs-bar-bg{height:7px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin:.3rem 0}
+.osrs-bar-f{height:100%;border-radius:4px;transition:width .8s}
+.osrs-dims{display:grid;grid-template-columns:repeat(2,1fr);gap:.35rem;margin-top:.5rem}
+.odim{display:flex;justify-content:space-between;font-size:.65rem;padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+
+/* EXERCISE LIST */
+.ex-list{display:flex;flex-direction:column;gap:.4rem}
+.ex-item{display:flex;align-items:center;gap:.75rem;padding:.625rem .75rem;background:rgba(255,255,255,.04);border-radius:.625rem;border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.ex-item:hover{background:rgba(255,255,255,.08);transform:translateX(3px)}
+.ex-item.active{background:rgba(255,215,0,.08);border-color:rgba(255,215,0,.3)}
+.ex-item.done{opacity:.55}
+.ex-item-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.ex-svg{flex-shrink:0}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:.875rem;font-weight:700;line-height:1.2}
+.ex-sub{font-size:.65rem;opacity:.5;margin-top:.15rem}
+.ex-tags{display:flex;gap:.3rem;margin-top:.35rem;flex-wrap:wrap}
+.ex-tag{font-size:.6rem;padding:.1rem .4rem;border-radius:2rem;background:rgba(255,255,255,.1);font-weight:600}
+.ex-osrs-tag{background:rgba(255,107,53,.2);color:#ff9f7a}
+.ex-score{font-size:.8rem;font-weight:700;min-width:32px;text-align:right}
+
+/* PROGRESS */
+.prog-section{background:rgba(0,0,0,.2);border-radius:.875rem;padding:.875rem}
+.cur-ex-name{font-size:1.05rem;font-weight:700;margin-bottom:.15rem}
+.cur-ex-sub{font-size:.725rem;opacity:.5;margin-bottom:.75rem}
+.timer-wrap{display:flex;align-items:baseline;gap:.35rem;margin:.5rem 0}
+.timer-num{font-size:3rem;font-weight:900;line-height:1;color:#ffd700}
+.timer-unit{font-size:.8rem;opacity:.4}
+.acc-box{background:rgba(0,0,0,.25);border-radius:.625rem;padding:.875rem;text-align:center;margin:.5rem 0}
+.acc-num{font-size:2.25rem;font-weight:900}
+.acc-lbl{font-size:.8rem;font-weight:600;margin-top:.15rem}
+.prog-bar-bg{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin:.5rem 0}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);border-radius:4px;transition:width .4s}
+.prog-label{display:flex;justify-content:space-between;font-size:.7rem;opacity:.5;margin-bottom:.25rem}
+.ctrl-row{display:flex;gap:.5rem;margin-top:.625rem}
+.ctrl{flex:1;padding:.625rem;border:none;border-radius:.625rem;font-weight:700;font-size:.8rem;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .2s}
+.ctrl:hover{transform:translateY(-1px)}
+.ctrl-p{background:linear-gradient(135deg,#667eea,#764ba2);color:white}
+.ctrl-s{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.15)}
+.ctrl-full{flex:2;background:linear-gradient(90deg,#ff4466,#ffaa00,#ffd700);color:#000}
+
+/* RESULT */
+.result-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.result-card{background:linear-gradient(135deg,#1a0a2e,#0f1030);border-radius:1.5rem;padding:2rem;max-width:420px;width:100%;text-align:center;border:1px solid rgba(102,126,234,.4);animation:slideUp .4s ease}
+.result-big{font-size:3rem;font-weight:900;color:#ffd700;margin:.5rem 0}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.625rem;margin:1rem 0}
+.result-stat{background:rgba(255,255,255,.07);border-radius:.75rem;padding:.75rem;text-align:center}
+.result-stat-val{font-size:1.25rem;font-weight:900}
+.result-stat-lbl{font-size:.6rem;opacity:.45;margin-top:.15rem}
+.restart-btn{width:100%;padding:.875rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:.875rem;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Prompt',sans-serif;margin-top:.5rem}
+
+.spin{width:30px;height:30px;border:3px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:rot 1s linear infinite}
+
+@media(max-width:640px){.main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand"><span>🤸</span><span class="g">Smart</span><span>Stretch</span><span style="font-size:.7rem;opacity:.5;margin-left:.25rem">AI GAME</span></div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <div class="chip chip-hr"><span style="animation:beat 1s infinite;display:inline-block">❤️</span><span id="hrChip" style="color:#ff4466">--</span><span style="opacity:.5;font-size:.7rem">bpm</span></div>
+      <div class="chip chip-osrs">⚕️ OSRS <span id="osrsChip" style="color:#ff6b35">${osrs}</span></div>
+      <div class="chip">🔥 <span id="strChip">0</span> ท่า</div>
+      <div class="chip">💎 <span id="ptsChip">0</span> pts</div>
+      <div class="chip" id="emotionChip" style="background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3)">
+        ${stress > 60 ? "😰" : stress > 40 ? "😐" : "😊"} ${emotion}
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- LEFT COL -->
+    <div class="col">
+
+      <!-- CAMERA -->
+      <div class="card">
+        <div class="card-title">📷 MediaPipe Pose Detection</div>
+        <div id="cam-wrap">
+          <video id="webcam" autoplay playsinline></video>
+          <canvas id="sk-canvas"></canvas>
+          <div class="reba-corner" id="rebaBadge" style="display:none">REBA <span id="rebaVal" style="color:#34D399">--</span></div>
+          <div class="cam-ov" id="camOv">
+            <div class="cam-ov-icon">📷</div>
+            <div class="cam-ov-txt">เปิดกล้องเพื่อตรวจจับท่า Real-time</div>
+            <button class="cam-btn" onclick="startCam()">🎥 เริ่มกล้อง (AI)</button>
+            <button class="cam-btn demo-btn" onclick="startDemo()">🎮 Demo Mode</button>
+          </div>
+        </div>
+        <div class="health-mini">
+          <div class="hm"><div class="hm-val" id="hmReba" style="color:#a5b4fc">--</div><div class="hm-lbl">REBA</div><div class="hm-bar"><div class="hm-bar-fill" id="hmRebaBar" style="width:0%;background:#a5b4fc"></div></div></div>
+          <div class="hm"><div class="hm-val" id="hmAcc" style="color:#ffd700">0%</div><div class="hm-lbl">Accuracy</div><div class="hm-bar"><div class="hm-bar-fill" id="hmAccBar" style="width:0%;background:#ffd700"></div></div></div>
+          <div class="hm"><div class="hm-val" id="hmDone" style="color:#00e676">0/8</div><div class="hm-lbl">ท่าสำเร็จ</div><div class="hm-bar"><div class="hm-bar-fill" id="hmDoneBar" style="width:0%;background:#00e676"></div></div></div>
+          <div class="hm"><div class="hm-val" id="hmPts" style="color:#ffaa00">0</div><div class="hm-lbl">Points</div><div class="hm-bar"><div class="hm-bar-fill" id="hmPtsBar" style="width:0%;background:#ffaa00"></div></div></div>
+        </div>
+      </div>
+
+      <!-- OSRS PANEL -->
+      <div class="card">
+        <div class="osrs-panel">
+          <div class="osrs-head">
+            <div>
+              <div class="osrs-label">⚕️ OSRS Risk Score</div>
+              <div style="display:flex;align-items:baseline;gap:.5rem;margin-top:.2rem">
+                <div class="osrs-num" id="osrsMain">${osrs}</div>
+                <div style="font-size:.75rem;color:#ff9f7a">/ 100 -- ${osrs >= 70 ? "HIGH ⚠️" : osrs >= 45 ? "MED ⚡" : "LOW ✅"}</div>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:.7rem;color:#ff9f7a;opacity:.7">ยืดครบ 8 ท่า</div>
+              <div style="font-size:.875rem;font-weight:700;color:#ff6b35">ลดได้ ~37pt</div>
+            </div>
+          </div>
+          <div class="osrs-bar-bg"><div class="osrs-bar-f" id="osrsBarFill" style="width:${osrs}%;background:${osrs >= 70 ? "#ff4466" : osrs >= 45 ? "#ffaa00" : "#00e676"}"></div></div>
+          <div class="osrs-dims" id="osrsDims">
+            ${[["🪑 นั่ง", 0.22], ["🧍 ท่าทาง", 0.20], ["🧠 เครียด", 0.18], ["👁️ สายตา", 0.15]].map(([n, w]) =>
+              `<div class="odim"><span style="opacity:.6">${n}</span><span style="color:#ff9f7a;font-weight:700">${Math.round(osrs * w * 4.5)}</span></div>`
+            ).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="card">
+        <div class="card-title">📊 Progress & Timer</div>
+        <div class="prog-section">
+          <div class="cur-ex-name" id="curExName">กด "เริ่มกล้อง" หรือ "Demo Mode"</div>
+          <div class="cur-ex-sub" id="curExSub">เลือกท่าจากด้านขวา หรือกด Full Workout 8 ท่า</div>
+          <div class="timer-wrap"><div class="timer-num" id="timerNum">--</div><div class="timer-unit">วินาที</div></div>
+          <div class="acc-box">
+            <div class="acc-num" id="accNum" style="color:#667eea">--</div>
+            <div class="acc-lbl" id="accLbl" style="opacity:.5">รอเริ่มต้น</div>
+          </div>
+          <div>
+            <div class="prog-label"><span>ความคืบหน้า</span><span><span id="doneNum">0</span>/8 ท่า</span></div>
+            <div class="prog-bar-bg"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
+          </div>
+          <div class="ctrl-row">
+            <button class="ctrl ctrl-s" onclick="skipEx()">⏭ ข้าม</button>
+            <button class="ctrl ctrl-s" onclick="togglePause()" id="pauseBtn">⏸ หยุด</button>
+            <button class="ctrl ctrl-full ctrl-p" onclick="startAll()">▶ Full 8 ท่า</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COL: EXERCISE LIST -->
+    <div class="col">
+      <div class="card" style="flex:1">
+        <div class="card-title">⚡ 8 ท่ายืดเส้น -- คลิกเพื่อเริ่ม</div>
+        <div class="ex-list" id="exList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-ov" id="resultOv" style="display:none">
+  <div class="result-card">
+    <div style="font-size:3rem">🏆</div>
+    <div style="font-size:1.5rem;font-weight:900;margin:.25rem 0">เสร็จสิ้น!</div>
+    <div class="result-big" id="resBig">0%</div>
+    <div class="result-grid" id="resGrid"></div>
+    <button class="restart-btn" onclick="restartAll()">🔄 เล่นอีกรอบ</button>
+  </div>
+</div>
+
+<script>
+const EXS=[
+  {name:"เอียงคอ",sub:"Neck Stretch",dur:30,hr:[65,85],col:"#ff6b6b",fix:"ปวดคอ/ต้นคอ",pts:4},
+  {name:"หมุนไหล่",sub:"Shoulder Roll",dur:40,hr:[70,90],col:"#ffaa00",fix:"ปวดไหล่/บ่า",pts:5},
+  {name:"ยืดแขน",sub:"Arm Stretch",dur:35,hr:[70,92],col:"#00e5d1",fix:"ชาแขน/ข้อศอก",pts:4},
+  {name:"ยืดหลัง",sub:"Back Stretch",dur:45,hr:[72,95],col:"#2266ff",fix:"ปวดหลัง",pts:6},
+  {name:"บิดลำตัว",sub:"Spine Twist",dur:40,hr:[78,100],col:"#c084fc",fix:"ปวดเอว/สะโพก",pts:5},
+  {name:"ยืดน่อง",sub:"Calf Stretch",dur:50,hr:[80,105],col:"#00e676",fix:"ปวดขา/เส้นเลือด",pts:5},
+  {name:"แอ่นหลัง",sub:"Back Arch",dur:35,hr:[75,98],col:"#ff6b9d",fix:"ปวดหลังล่าง",pts:5},
+  {name:"ยืดข้อมือ",sub:"Wrist Stretch",dur:25,hr:[65,82],col:"#ffd700",fix:"ปวดข้อมือ/นิ้ว",pts:3}
+];
+let G={idx:0,scores:[],paused:false,active:false,time:0,acc:0,done:0,pts:0,osrs:${osrs},totalPts:0};
+let timI=null,simI=null,poseObj=null,camObj=null,lastLM=null;
+
+function svgBody(col,w,h){return'<svg viewBox="0 0 60 60" width="'+w+'" height="'+h+'"><circle cx="30" cy="10" r="7" fill="none" stroke="'+col+'" stroke-width="2"/><line x1="30" y1="17" x2="30" y2="40" stroke="'+col+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="27" x2="16" y2="36" stroke="'+col+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="27" x2="44" y2="36" stroke="'+col+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="40" x2="22" y2="54" stroke="'+col+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="40" x2="38" y2="54" stroke="'+col+'" stroke-width="2" stroke-linecap="round"/></svg>';}
+
+function buildList(){
+  document.getElementById('exList').innerHTML=EXS.map((ex,i)=>{
+    const isDone=G.scores[i]!==undefined;const isCur=i===G.idx&&G.active;
+    const sc=G.scores[i];
+    const scCol=sc>=90?'#00e676':sc>=80?'#60a5fa':sc>=50?'#ffd700':'#ff4466';
+    return '<div class="ex-item'+(isDone?' done':isCur?' active':'')+'" id="ei'+i+'" onclick="startSingle('+i+')">'
+      +'<div class="ex-item-bar" style="background:'+ex.col+'"></div>'
+      +'<div class="ex-svg">'+svgBody(ex.col,36,36)+'</div>'
+      +'<div class="ex-info">'
+        +'<div class="ex-name" style="color:'+ex.col+'">'+ex.name+'</div>'
+        +'<div class="ex-sub">'+ex.fix+'</div>'
+        +'<div class="ex-tags">'
+          +'<span class="ex-tag" style="color:'+ex.col+'">HR '+ex.hr[0]+'-'+ex.hr[1]+'</span>'
+          +'<span class="ex-tag">'+ex.dur+'s</span>'
+          +'<span class="ex-tag ex-osrs-tag">-'+ex.pts+'pt</span>'
+        +'</div>'
+      +'</div>'
+      +'<div class="ex-score" style="color:'+(isDone?scCol:'rgba(255,255,255,.2)')+'">'+(isDone?sc+'%':'--')+'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function loadEx(idx){
+  if(idx>=EXS.length){endGame();return;}
+  const ex=EXS[idx];G.idx=idx;G.time=ex.dur;G.active=true;
+  document.getElementById('curExName').textContent=(idx+1)+'. '+ex.name+' -- '+ex.sub;
+  document.getElementById('curExSub').textContent=ex.fix+' · HR Zone '+ex.hr[0]+'-'+ex.hr[1]+' · -'+ex.pts+' OSRS pts';
+  document.getElementById('timerNum').textContent=ex.dur;
+  document.getElementById('timerNum').style.color='#ffd700';
+  document.getElementById('doneNum').textContent=idx;
+  document.getElementById('progFill').style.width=(idx/EXS.length*100)+'%';
+  buildList();startTimer();
+}
+
+function startTimer(){
+  clearInterval(timI);
+  timI=setInterval(()=>{
+    if(G.paused)return;
+    G.time--;
+    document.getElementById('timerNum').textContent=G.time;
+    if(G.time<=5)document.getElementById('timerNum').style.color='#ff4466';
+    if(G.time<=0){clearInterval(timI);completeEx();}
+  },1000);
+}
+
+function completeEx(){
+  const sc=G.acc||0;G.scores[G.idx]=sc;G.done++;G.totalPts+=sc;
+  G.osrs=Math.max(0,G.osrs-EXS[G.idx].pts);
+  document.getElementById('osrsMain').textContent=G.osrs;
+  document.getElementById('osrsChip').textContent=G.osrs;
+  const pct=G.osrs;
+  document.getElementById('osrsBarFill').style.width=pct+'%';
+  document.getElementById('osrsBarFill').style.background=pct>=70?'#ff4466':pct>=45?'#ffaa00':'#00e676';
+  document.getElementById('hmDone').textContent=G.done+'/8';
+  document.getElementById('hmDoneBar').style.width=(G.done/8*100)+'%';
+  document.getElementById('strChip').textContent=G.done;
+  setTimeout(()=>loadEx(G.idx+1),800);
+}
+
+function skipEx(){if(!G.active)return;clearInterval(timI);G.scores[G.idx]=0;G.done++;loadEx(G.idx+1);}
+
+function togglePause(){
+  G.paused=!G.paused;
+  document.getElementById('pauseBtn').textContent=G.paused?'▶ ต่อ':'⏸ หยุด';
+}
+
+function startAll(){
+  clearInterval(timI);clearInterval(simI);
+  G={idx:0,scores:[],paused:false,active:false,time:0,acc:0,done:0,pts:0,osrs:${osrs},totalPts:0};
+  document.getElementById('resultOv').style.display='none';
+  buildList();loadEx(0);
+}
+
+function startSingle(i){
+  if(!G.active&&document.getElementById('camOv').style.display!=='none')return;
+  clearInterval(timI);G.idx=i;loadEx(i);
+}
+
+function restartAll(){startAll();}
+
+function endGame(){
+  G.active=false;clearInterval(timI);clearInterval(simI);
+  const sc=G.scores.filter(s=>s>0);
+  const avg=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length):0;
+  document.getElementById('resBig').textContent=avg+'%';
+  const osrsRed=${osrs}-G.osrs;
+  document.getElementById('resGrid').innerHTML=[
+    {v:G.done+'/8',l:'ท่าสำเร็จ',c:'#00e5d1'},
+    {v:'-'+osrsRed+'pt',l:'OSRS ลด',c:'#ff6b35'},
+    {v:G.totalPts+'pts',l:'Points',c:'#ffd700'},
+  ].map(s=>'<div class="result-stat"><div class="result-stat-val" style="color:'+s.c+'">'+s.v+'</div><div class="result-stat-lbl">'+s.l+'</div></div>').join('');
+  document.getElementById('resultOv').style.display='flex';
+}
+
+// ACCURACY
+function updateAcc(v){
+  G.acc=v;
+  const el=document.getElementById('accNum'),lb=document.getElementById('accLbl');
+  el.textContent=v+'%';
+  el.style.color=v>=90?'#00e676':v>=80?'#60a5fa':v>=50?'#ffd700':'#ff4466';
+  lb.textContent=v>=90?'🎉 Perfect!':v>=80?'👍 Great!':v>=50?'⚠️ ปรับท่า':'❌ ปรับปรุง';
+  lb.style.color=el.style.color;
+  document.getElementById('hmAcc').textContent=v+'%';
+  document.getElementById('hmAccBar').style.width=v+'%';
+}
+
+// REBA
+function calcReba(lm){
+  if(!lm||lm.length<33)return null;
+  const nose=lm[0],ls=lm[11],rs=lm[12],lh=lm[23],rh=lm[24];
+  const smx=(ls.x+rs.x)/2,smy=(ls.y+rs.y)/2,hmx=(lh.x+rh.x)/2;
+  const nf=Math.abs(nose.x-smx)*100,tf=Math.abs(smx-hmx)*100,sa=Math.abs(ls.y-rs.y)*100;
+  let s=2;if(tf>10)s++;if(tf>25)s++;if(sa>5)s++;if(nf>10)s++;
+  return Math.min(12,Math.max(1,Math.round(s)));
+}
+function setReba(r){
+  if(!r)return;
+  const c=r<=4?'#34D399':r<=7?'#FBBF24':'#F87171';
+  document.getElementById('rebaVal').textContent=r;
+  document.getElementById('rebaVal').style.color=c;
+  document.getElementById('rebaBadge').style.display='block';
+  document.getElementById('hmReba').textContent=r;
+  document.getElementById('hmReba').style.color=c;
+  document.getElementById('hmRebaBar').style.width=(r/12*100)+'%';
+  document.getElementById('hmRebaBar').style.background=c;
+}
+
+// POSE CALLBACK
+function onPose(res){
+  if(!res.poseLandmarks)return;
+  const cv=document.getElementById('sk-canvas'),vid=document.getElementById('webcam');
+  cv.width=vid.videoWidth;cv.height=vid.videoHeight;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
+  const r=calcReba(res.poseLandmarks);setReba(r);
+  const sc=r?(r<=4?'#34D399':r<=7?'#FBBF24':'#F87171'):'#667eea';
+  drawConnectors(ctx,res.poseLandmarks,POSE_CONNECTIONS,{color:sc,lineWidth:3});
+  drawLandmarks(ctx,res.poseLandmarks,{color:'#764ba2',lineWidth:2,radius:4});
+  lastLM=res.poseLandmarks;
+  if(G.active&&!G.paused){
+    const ns=res.poseLandmarks[0],ls=res.poseLandmarks[11],rs2=res.poseLandmarks[12];
+    const sw=Math.abs(ls.x-rs2.x),ba=Math.abs((ls.x+rs2.x)/2-(res.poseLandmarks[23].x+res.poseLandmarks[24].x)/2);
+    let v=68;if(sw>.15&&sw<.35)v+=10;if(ba<.05)v+=10;if(ns.visibility>.8)v+=8;
+    v+=Math.random()*8-4;updateAcc(Math.max(0,Math.min(100,Math.round(v))));
+  }
+}
+
+async function startCam(){
+  document.getElementById('camOv').innerHTML='<div class="spin"></div><div style="font-size:.85rem;margin-top:.625rem;opacity:.7">กำลังโหลด AI Model...</div>';
+  try{
+    poseObj=new Pose({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/pose/'+f});
+    poseObj.setOptions({modelComplexity:1,smoothLandmarks:true,minDetectionConfidence:.5,minTrackingConfidence:.5});
+    poseObj.onResults(onPose);
+    const vid=document.getElementById('webcam');
+    camObj=new Camera(vid,{onFrame:async()=>await poseObj.send({image:vid}),width:640,height:480});
+    await camObj.start();
+    document.getElementById('camOv').style.display='none';
+    if(!G.active)startAll();
+  }catch(e){
+    document.getElementById('camOv').innerHTML='<div style="font-size:1.5rem">❌</div><div style="font-size:.85rem;opacity:.75;margin:.35rem 0">ไม่สามารถเปิดกล้องได้</div><button class="cam-btn" onclick="startCam()">🔄 ลองอีกครั้ง</button><button class="cam-btn demo-btn" onclick="startDemo()">🎮 Demo Mode</button>';
+  }
+}
+
+function startDemo(){
+  document.getElementById('camOv').style.display='none';
+  setReba(5);
+  if(!G.active)startAll();
+  clearInterval(simI);
+  simI=setInterval(()=>{
+    if(!G.active||G.paused)return;
+    const v=Math.round(62+Math.random()*33);updateAcc(v);
+    setReba(Math.round(3+Math.random()*6));
+    const fakeHR=Math.round(68+Math.random()*28);
+    document.getElementById('hrChip').textContent=fakeHR;
+    document.getElementById('hmPts').textContent=G.totalPts;
+    document.getElementById('ptsChip').textContent=G.totalPts;
+  },900);
+}
+
+buildList();
+<\/script>
+</body>
+</html>`;
+
+  useEffect(() => {
+    const blob = new Blob([gameHtml], { type: "text/html" });
+    blobRef.current = URL.createObjectURL(blob);
+    return () => { if (blobRef.current) URL.revokeObjectURL(blobRef.current); };
+  }, [osrs]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* AI tip banner */}
+      <div style={{ background: "linear-gradient(135deg,rgba(102,126,234,.12),rgba(118,75,162,.08))", border: "1px solid rgba(102,126,234,.35)", borderRadius: 12, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: "bold", color: "#a5b4fc", marginBottom: 3 }}>🤖 AI แนะนำท่าตามสภาพร่างกายตอนนี้</div>
+          <div style={{ fontSize: 11, color: "#888" }}>
+            {stress > 65 ? "😰 Stressed -- แนะนำ: เอียงคอ + ยืดหลัง + แอ่นหลัง (ลด Cortisol)" : stress > 45 ? "😐 ปานกลาง -- แนะนำ: หมุนไหล่ + บิดลำตัว + ยืดแขน" : "😊 ดี -- แนะนำ: ท่าครบชุด 8 ท่า Office Syndrome Prevention"}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+          <div style={{ background: `${osrsColor}15`, border: `1px solid ${osrsColor}40`, borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+            <div style={{ fontSize: 16, fontWeight: "bold", color: osrsColor }}>{osrs}</div>
+            <div style={{ fontSize: 9, color: "#888" }}>OSRS ตอนนี้</div>
+          </div>
+          <div style={{ background: "rgba(0,230,118,.12)", border: "1px solid rgba(0,230,118,.3)", borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+            <div style={{ fontSize: 14, fontWeight: "bold", color: "#00e676" }}>-37pt</div>
+            <div style={{ fontSize: 9, color: "#888" }}>ยืดครบ 8 ท่า</div>
+          </div>
+        </div>
+      </div>
+
+      {/* iframe wrapper */}
+      <div style={{ background: C.surf, borderRadius: 14, overflow: "hidden", border: "1px solid #2a2a45" }}>
+        {/* fake browser bar */}
+        <div style={{ background: "#0a0a18", padding: "7px 14px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #1e1e3a" }}>
+          <div style={{ display: "flex", gap: 5 }}>
+            {["#ff5f57", "#febc2e", "#28c840"].map((c, i) => (
+              <div key={i} style={{ width: 9, height: 9, borderRadius: "50%", background: c }} />
+            ))}
+          </div>
+          <div style={{ flex: 1, background: "#1a1a2e", borderRadius: 6, padding: "3px 10px", fontSize: 10, color: "#555", textAlign: "center" }}>
+            🤸 Smart Stretch Game -- MediaPipe AI Pose Detection
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, animation: "pulse 1.5s infinite" }} />
+            <span style={{ fontSize: 9, color: C.green }}>Live</span>
+          </div>
+        </div>
+        <iframe
+          srcDoc={gameHtml}
+          style={{ width: "100%", height: 820, border: "none", display: "block" }}
+          allow="camera;microphone"
+          onLoad={() => setLoaded(true)}
+          title="Smart Stretch Game"
+          sandbox="allow-scripts allow-same-origin"
+        />
+        {!loaded && (
+          <div style={{ position: "absolute", inset: 0, background: "rgba(8,8,24,.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            <div style={{ width: 32, height: 32, border: "3px solid rgba(102,126,234,.3)", borderTop: "3px solid #667eea", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+            <div style={{ fontSize: 12, color: "#888" }}>กำลังโหลด...</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN APP ──────────────────────────────────────────────
+export default function HeartStretch() {
+  const [tab, setTab] = useState("home");
+  const [hr, setHR] = useState(75);
+  const [spo2, setSpo2] = useState(98);
+  const [hrv, setHRV] = useState(62);
+  const [stress, setStress] = useState(45);
+  const [fatigue, setFatigue] = useState(40);
+  const [postureScore, setPosture] = useState(80);
+  const [water, setWater] = useState(3);
+  const [totalStretch, setTotalStretch] = useState(0);
+  const [totalCal, setTotalCal] = useState(0);
+  const [sittingMin, setSittingMin] = useState(28);
+  const [eyeMin, setEyeMin] = useState(45);
+  const [steps, setSteps] = useState(3200);
+  const [emotion, setEmotion] = useState("Neutral");
+  const simRef = useRef(null);
+
+  const sittingRisk = Math.min(100, sittingMin * 1.4);
+  const postureRisk = 100 - postureScore;
+  const mentalRisk = stress;
+  const eyeRisk = Math.min(100, eyeMin * 1.2);
+  const physicalRisk = Math.max(0, 100 - totalStretch * 10 - (steps / 8000) * 40);
+  const sleepRisk = 35;
+  const nutritionRisk = Math.max(0, 100 - water * 12);
+  const dimRisks = { sitting: sittingRisk, posture: postureRisk, mental: mentalRisk, eye: eyeRisk, physical: physicalRisk, sleep: sleepRisk, nutrition: nutritionRisk };
+  const osrs = Math.round(DIMS.reduce((s, d) => s + dimRisks[d.id] * d.weight, 0));
+  const osrsColor = osrs >= 70 ? C.red : osrs >= 45 ? C.orange : C.green;
+  const osrsLabel = osrs >= 70 ? "HIGH" : osrs >= 45 ? "MED" : "LOW";
+  const wellness = Math.round(100 - stress * 0.5 - fatigue * 0.3);
+  const emotionColors = { Neutral: C.lgray, Happy: C.green, Focused: C.teal, Tired: C.orange, Stressed: C.red, Anxious: C.pink };
+  const emotionIcon = { Neutral: "😐", Happy: "😊", Focused: "🎯", Tired: "😴", Stressed: "😰", Anxious: "😟" };
+
+  useEffect(() => {
+    simRef.current = setInterval(() => {
+      setHR(h => Math.max(58, Math.min(120, h + ri(-3, 3))));
+      setSpo2(v => Math.max(95, Math.min(100, v + (Math.random() > 0.9 ? -1 : 0))));
+      setHRV(v => Math.max(30, Math.min(85, v + rf(-2, 2))));
+      setStress(v => {
+        const nv = Math.max(10, Math.min(88, v + rf(-2, 2)));
+        setEmotion(nv > 68 ? (Math.random() > 0.5 ? "Stressed" : "Anxious") : fatigue > 65 ? "Tired" : nv < 28 ? "Happy" : "Neutral");
+        return nv;
+      });
+      setFatigue(v => Math.max(10, Math.min(85, v + rf(-1.5, 1.5))));
+      setPosture(v => Math.max(35, Math.min(98, v + rf(-2, 2))));
+      setSittingMin(m => m + 0.025);
+      setEyeMin(m => m + 0.02);
+      setSteps(s => s + ri(0, 2));
+    }, 1500);
+    return () => clearInterval(simRef.current);
+  }, [fatigue]);
+
+  const TABS = [
+    { id: "home", label: "🏠 หน้าหลัก" },
+    { id: "emotion", label: "🧠 Emotion AI" },
+    { id: "workout", label: "🤸 Smart Stretch" },
+    { id: "risk", label: "⚕️ Risk Score" },
+    { id: "results", label: "📊 ผลลัพธ์" },
+  ];
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", fontFamily: "Arial,sans-serif", color: C.white, fontSize: 13 }}>
+      <style>{`
+        @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .btn{transition:all .15s;cursor:pointer;} .btn:hover{opacity:.85;transform:translateY(-1px);}
+        ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#444}
+      `}</style>
+
+      {/* HEADER */}
+      <div style={{ background: "linear-gradient(180deg,#1a0510,#0f0f1a)", borderBottom: "1px solid #3a1525", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ maxWidth: 1060, margin: "0 auto", padding: "0 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 54, flexWrap: "wrap", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width={32} height={32} viewBox="0 0 40 40">
+                <defs><linearGradient id="hg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#ff4466" /><stop offset="100%" stopColor="#ffaa00" /></linearGradient></defs>
+                <path d="M20 34C20 34 4 24 4 13c0-5 4-9 9-9 3 0 6 2 7 4 1-2 4-4 7-4 5 0 9 4 9 9 0 11-16 21-16 21z" fill="url(#hg2)" />
+                <polyline points="10,18 13,18 16,12 19,24 22,16 25,20 30,20" fill="none" stroke="white" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{ ...gRed, fontSize: 18, fontWeight: 900 }}>Heart</span>
+              <span style={{ fontSize: 18, fontWeight: 900 }}>Stretch</span>
+              <span style={{ fontSize: 9, color: "#9a4060", marginLeft: 4, letterSpacing: 1, fontWeight: 700 }}>OFFICE CARE × AI</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ background: "#1a1a2e", border: "1px solid #333", borderRadius: 20, padding: "4px 12px", fontSize: 12 }}>{emotionIcon[emotion]} {emotion}</div>
+              <div style={{ background: `${osrsColor}18`, border: `1px solid ${osrsColor}55`, borderRadius: 20, padding: "4px 12px", display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ fontSize: 11, color: osrsColor, fontWeight: "bold" }}>⚕️ OSRS</span>
+                <span style={{ fontSize: 16, fontWeight: "bold", color: osrsColor }}>{osrs}</span>
+                <span style={{ fontSize: 9, background: `${osrsColor}30`, color: osrsColor, borderRadius: 8, padding: "1px 5px", fontWeight: "bold" }}>{osrsLabel}</span>
+              </div>
+              <div style={{ background: "#200010", border: "1px solid #ff446644", borderRadius: 20, padding: "4px 12px", display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ animation: "beat 1s infinite", display: "inline-block" }}>❤️</span>
+                <span style={{ fontSize: 16, fontWeight: "bold", color: C.red }}>{Math.round(hr)}</span>
+                <span style={{ fontSize: 10, color: C.gray }}>bpm</span>
+              </div>
+              <div style={{ background: "#1a0d00", border: `1px solid ${C.orange}33`, borderRadius: 20, padding: "4px 10px", fontSize: 11, color: C.orange, fontWeight: "bold" }}>
+                🔥 {totalStretch} ท่า · {totalCal} kcal
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex" }}>
+            {TABS.map(t => (
+              <button key={t.id} className="btn" onClick={() => setTab(t.id)}
+                style={{ background: "none", border: "none", borderBottom: tab === t.id ? "2px solid #ff4466" : "2px solid transparent", color: tab === t.id ? C.white : C.gray, padding: "9px 16px", fontSize: 12, fontWeight: tab === t.id ? 700 : 400, cursor: "pointer", whiteSpace: "nowrap" }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 1060, margin: "0 auto", padding: "20px 20px 60px" }}>
+
+        {/* ══ HOME -- ลบ 8 exercise cards ออก ══ */}
+        {tab === "home" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Hero */}
+            <div style={{ background: "linear-gradient(135deg,#1a0510,#1a1030,#0f1020)", border: "1px solid #3a1525", borderRadius: 18, padding: "22px 26px", display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 20 }}>
+              <div>
+                <div style={{ fontSize: 11, color: "#9a6070", marginBottom: 4 }}>HeartStretch × AI Emotion Monitor</div>
+                <div style={{ fontSize: 24, fontWeight: 800, ...gRed, marginBottom: 8, lineHeight: 1.2 }}>ร่างกายและจิตใจพร้อมรับมืออออฟฟิศไหม?</div>
+                <div style={{ fontSize: 12, color: C.lgray, lineHeight: 1.8, marginBottom: 14 }}>
+                  อารมณ์: <span style={{ color: emotionColors[emotion], fontWeight: 700 }}>{emotionIcon[emotion]} {emotion}</span> ·
+                  ความเครียด: <span style={{ color: stress > 60 ? C.red : C.orange, fontWeight: 700 }}>{Math.round(stress)}%</span> ·
+                  ท่าทาง: <span style={{ color: C.teal, fontWeight: 700 }}>{Math.round(postureScore)}%</span>
+                </div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button className="btn" onClick={() => setTab("workout")}
+                    style={{ background: gBrand, color: "#000", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: 14, fontWeight: 800 }}>
+                    🤸 เริ่ม Smart Stretch
+                  </button>
+                  <button className="btn" onClick={() => setTab("emotion")}
+                    style={{ background: "#1e1e3a", color: C.white, border: "1px solid #3a3a5a", borderRadius: 10, padding: "11px 18px", fontSize: 13 }}>
+                    🧠 Emotion AI
+                  </button>
+                  <button className="btn" onClick={() => setTab("risk")}
+                    style={{ background: `${osrsColor}18`, color: osrsColor, border: `1px solid ${osrsColor}44`, borderRadius: 10, padding: "11px 18px", fontSize: 13, fontWeight: 700 }}>
+                    ⚕️ Risk Score {osrs}
+                  </button>
+                </div>
+              </div>
+              {/* 3 RINGS */}
+              <div style={{ display: "flex", gap: 14, flexShrink: 0, alignItems: "center" }}>
+                <div style={{ textAlign: "center" }}>
+                  <Ring val={100 - osrs} size={90} color={osrsColor} glow sub="OSRS" />
+                  <div style={{ fontSize: 9, color: osrsColor, fontWeight: "bold", marginTop: 2 }}>Risk {osrsLabel}</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <Ring val={postureScore} size={90} color={C.teal} sub="Posture" />
+                  <div style={{ fontSize: 9, color: C.gray, marginTop: 2 }}>ท่าทาง</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <Ring val={wellness} size={90} color={wellness > 65 ? C.green : C.orange} sub="Wellness" />
+                  <div style={{ fontSize: 9, color: C.gray, marginTop: 2 }}>สุขภาวะ</div>
+                </div>
+              </div>
+            </div>
+
+            {/* KPI row */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 10 }}>
+              {[
+                { label: "Heart Rate", val: `${Math.round(hr)}`, unit: "bpm", color: C.red, bg: "#200010" },
+                { label: "SpO2", val: `${Math.round(spo2)}`, unit: "%", color: C.teal, bg: "#051514" },
+                { label: "HRV", val: `${Math.round(hrv)}`, unit: "ms", color: C.blue, bg: "#050f20" },
+                { label: "ความเครียด", val: `${Math.round(stress)}`, unit: "%", color: stress < 50 ? C.green : C.red, bg: "#150510" },
+                { label: "ความเหนื่อยล้า", val: `${Math.round(fatigue)}`, unit: "%", color: fatigue < 50 ? C.green : C.orange, bg: "#151000" },
+                { label: "⚕️ OSRS Risk", val: `${osrs}`, unit: "/100", color: osrsColor, bg: `${osrsColor}15`, onClick: () => setTab("risk") },
+              ].map((m, i) => (
+                <div key={i} className="btn" onClick={m.onClick}
+                  style={{ background: m.bg || C.surf, border: `1px solid ${m.color}25`, borderRadius: 12, padding: "14px 12px", cursor: m.onClick ? "pointer" : "default" }}>
+                  <div style={{ fontSize: 10, color: C.gray, marginBottom: 6, fontWeight: 600 }}>{m.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: m.color, lineHeight: 1, whiteSpace: "nowrap" }}>
+                    {m.val}<span style={{ fontSize: 10, color: C.gray, marginLeft: 2 }}>{m.unit}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom row: OSRS summary + Water + Eye */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+              {/* OSRS mini */}
+              <div className="btn" onClick={() => setTab("risk")}
+                style={{ background: `${osrsColor}10`, border: `1px solid ${osrsColor}40`, borderRadius: 14, padding: "16px 20px", cursor: "pointer" }}>
+                <div style={{ fontSize: 11, color: osrsColor, fontWeight: "bold", letterSpacing: 1, marginBottom: 10 }}>⚕️ OSRS -- 7 มิติ</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <Ring val={100 - osrs} size={72} color={osrsColor} />
+                  <div style={{ flex: 1 }}>
+                    {DIMS.slice(0, 4).map(d => (
+                      <div key={d.id} style={{ marginBottom: 5 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, marginBottom: 2 }}>
+                          <span style={{ color: C.lgray }}>{d.icon} {d.name}</span>
+                          <span style={{ color: d.col, fontWeight: "bold" }}>{Math.round(dimRisks[d.id])}</span>
+                        </div>
+                        <Bar val={dimRisks[d.id]} color={d.col} h={3} />
+                      </div>
+                    ))}
+                    <div style={{ fontSize: 10, color: C.teal, marginTop: 4 }}>คลิกดูรายละเอียด -></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick stretch CTA */}
+              <div className="btn" onClick={() => setTab("workout")}
+                style={{ background: "linear-gradient(135deg,#1a0510,#1a1030)", border: "1px solid #3a1525", borderRadius: 14, padding: "20px", textAlign: "center", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                <div style={{ fontSize: 44 }}>🤸</div>
+                <div style={{ fontSize: 16, fontWeight: 800, ...gRed }}>Smart Stretch</div>
+                <div style={{ fontSize: 11, color: "#9a6070" }}>8 ท่า MediaPipe AI · ลด OSRS ได้ทันที</div>
+                <div style={{ background: gBrand, color: "#000", borderRadius: 20, padding: "5px 18px", fontSize: 12, fontWeight: 800, marginTop: 4 }}>เริ่มเลย -></div>
+              </div>
+
+              {/* Water + Eye */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div className="btn" onClick={() => setWater(w => Math.min(8, w + 1))}
+                  style={{ background: "#05102a", border: `1px solid ${C.blue}40`, borderRadius: 12, padding: "14px 18px", textAlign: "center", cursor: "pointer", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                  <div style={{ fontSize: 24 }}>💧</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: C.blue }}>{water}<span style={{ fontSize: 11, color: C.gray }}>/8</span></div>
+                  <div style={{ fontSize: 10, color: C.gray }}>แก้วน้ำวันนี้ (กดเพิ่ม)</div>
+                  <Bar val={(water / 8) * 100} color={C.blue} />
+                </div>
+                <div style={{ background: "#0a0520", border: `1px solid ${C.purple}40`, borderRadius: 12, padding: "12px 18px", textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
+                  <div style={{ fontSize: 20 }}>👁️</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.purple }}>20-20-20</div>
+                  <div style={{ fontSize: 10, color: C.gray }}>มองไกล 20 ฟุต ทุก 20 นาที</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ EMOTION AI ══ */}
+        {tab === "emotion" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ background: "linear-gradient(135deg,#1a0a2e,#0f0f1a)", border: "1px solid #c084fc33", borderRadius: 14, padding: 22 }}>
+              <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+                <div style={{ background: "#050510", borderRadius: 12, padding: 20, width: 185, textAlign: "center", flexShrink: 0 }}>
+                  <div style={{ fontSize: 50, marginBottom: 8 }}>{emotionIcon[emotion]}</div>
+                  <div style={{ fontSize: 18, fontWeight: "bold", color: emotionColors[emotion] }}>{emotion}</div>
+                  <div style={{ fontSize: 11, color: C.gray, marginTop: 4 }}>FACS Detection</div>
+                  <div style={{ fontSize: 13, color: C.teal, marginTop: 4, fontWeight: "bold" }}>{85 + ri(0, 12)}% Confidence</div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: "bold", color: C.white, marginBottom: 12 }}>🧠 AI Emotion + Stress Analysis</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+                    {[
+                      { l: "Stress Level", v: Math.round(stress) + "%", c: stress < 50 ? C.green : C.red },
+                      { l: "Fatigue", v: Math.round(fatigue) + "%", c: fatigue < 50 ? C.green : C.orange },
+                      { l: "HRV", v: Math.round(hrv) + "ms", c: C.blue },
+                      { l: "Wellness", v: wellness, c: wellness > 65 ? C.green : C.orange },
+                    ].map(({ l, v, c }) => (
+                      <div key={l} style={{ background: C.surf2, borderRadius: 9, padding: "12px", textAlign: "center" }}>
+                        <div style={{ fontSize: 20, fontWeight: "bold", color: c }}>{v}</div>
+                        <div style={{ fontSize: 10, color: C.gray, marginTop: 3 }}>{l}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ background: `${emotionColors[emotion]}12`, border: `1px solid ${emotionColors[emotion]}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, color: emotionColors[emotion], fontWeight: "bold", marginBottom: 3 }}>AI แนะนำสำหรับ "{emotion}"</div>
+                    <div style={{ fontSize: 11, color: C.lgray }}>
+                      {emotion === "Stressed" ? "-> เอียงคอ + ยืดหลัง + แอ่นหลัง (ลด Cortisol 27%)" : emotion === "Tired" ? "-> หมุนไหล่ + ยืดแขน + บิดลำตัว (ฟื้นฟูกล้ามเนื้อ)" : emotion === "Anxious" ? "-> ยืดน่อง + ยืดข้อมือ (คลายกังวล)" : "-> ท่าครบชุด 8 ท่า Office Syndrome Prevention"}
+                    </div>
+                  </div>
+                  <button className="btn" onClick={() => setTab("workout")}
+                    style={{ background: gBrand, color: "#000", border: "none", borderRadius: 10, padding: "9px 20px", fontSize: 12, fontWeight: 800 }}>
+                    🤸 ไปยืดเส้นตามคำแนะนำ ->
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div style={{ background: C.surf, border: "1px solid #2a2a45", borderRadius: 14, padding: 18 }}>
+                <div style={{ fontSize: 13, fontWeight: "bold", color: C.purple, marginBottom: 12 }}>📊 7 Health Dimensions -- Real-time</div>
+                {DIMS.map(d => (
+                  <div key={d.id} style={{ marginBottom: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
+                      <span style={{ color: C.lgray }}>{d.icon} {d.name} <span style={{ fontSize: 9, opacity: .5 }}>×{Math.round(d.weight * 100)}%</span></span>
+                      <span style={{ color: dimRisks[d.id] >= 65 ? C.red : dimRisks[d.id] >= 45 ? C.orange : C.green, fontWeight: "bold" }}>{Math.round(dimRisks[d.id])}</span>
+                    </div>
+                    <Bar val={dimRisks[d.id]} color={dimRisks[d.id] >= 65 ? C.red : dimRisks[d.id] >= 45 ? C.orange : C.green} />
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: C.surf, border: "1px solid #2a2a45", borderRadius: 14, padding: 18 }}>
+                <div style={{ fontSize: 13, fontWeight: "bold", color: C.teal, marginBottom: 12 }}>🎯 AI Recommendations</div>
+                {[
+                  { cond: stress > 60, msg: "ความเครียดสูง -> ยืดเส้น 10 นาที + พัก", color: C.red },
+                  { cond: fatigue > 60, msg: "ล้า -> หมุนไหล่ + ยืดหลัง + แอ่นหลัง", color: C.orange },
+                  { cond: sittingMin > 40, msg: `นั่ง ${Math.round(sittingMin)} นาที -> ลุกยืด!`, color: C.orange },
+                  { cond: water < 4, msg: "น้ำน้อย -> ดื่มให้ครบ 8 แก้ว", color: C.blue },
+                  { cond: osrs > 60, msg: `OSRS ${osrs} -> ยืดเส้นลดความเสี่ยง`, color: C.osrs },
+                  { cond: eyeMin > 40, msg: "สายตาล้า -> 20-20-20 Rule", color: C.purple },
+                ].filter(r => r.cond).slice(0, 6).map((r, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, padding: "7px 0", borderBottom: "1px solid #1e1e3a" }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: r.color, marginTop: 4, flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: C.lgray }}>{r.msg}</span>
+                  </div>
+                ))}
+                {stress <= 60 && fatigue <= 60 && sittingMin <= 40 && (
+                  <div style={{ fontSize: 12, color: C.green, textAlign: "center", padding: "14px 0" }}>✅ สุขภาพดีเยี่ยม! รักษาระดับนี้ไว้</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ SMART STRETCH -- iframe ══ */}
+        {tab === "workout" && (
+          <SmartStretchTab osrs={osrs} osrsColor={osrsColor} stress={stress} emotion={emotion} />
+        )}
+
+        {/* ══ RISK SCORE ══ */}
+        {tab === "risk" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ background: "#ffffff", borderRadius: 16, padding: "24px 28px", display: "grid", gridTemplateColumns: "auto 1fr", gap: 24, alignItems: "center", border: `2px solid ${osrsColor}55` }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                <div style={{ position: "relative", width: 180, height: 180 }}>
+                  <svg width={180} height={180} style={{ transform: "rotate(-135deg)" }}>
+                    <circle cx={90} cy={90} r={72} fill="none" stroke="#e0e0f0" strokeWidth={12} strokeDasharray={`${2 * Math.PI * 72 * 0.75} ${2 * Math.PI * 72}`} strokeDashoffset={-(2 * Math.PI * 72 * 0.125)} strokeLinecap="round" />
+                    <circle cx={90} cy={90} r={72} fill="none" stroke={osrsColor} strokeWidth={12} strokeDasharray={`${(osrs / 100) * 2 * Math.PI * 72 * 0.75} ${2 * Math.PI * 72}`} strokeDashoffset={-(2 * Math.PI * 72 * 0.125)} strokeLinecap="round" style={{ transition: "stroke-dasharray 1s" }} />
+                  </svg>
+                  <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ fontSize: 48, fontWeight: 900, color: osrsColor, lineHeight: 1 }}>{osrs}</div>
+                    <div style={{ fontSize: 12, color: "#666" }}>/ 100</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: osrsColor, marginTop: 4 }}>{osrsLabel} RISK</div>
+                  </div>
+                </div>
+                <div style={{ background: osrsColor, color: "#fff", borderRadius: 10, padding: "8px 18px", fontSize: 12, fontWeight: 700 }}>
+                  {osrs >= 70 ? "⚠️ ต้องดำเนินการทันที" : osrs >= 45 ? "⚡ ควรปรับพฤติกรรม" : "✅ รักษาระดับนี้"}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "#1a1a3a", marginBottom: 4 }}>Office Syndrome Risk Score</div>
+                <div style={{ fontSize: 12, color: "#555", marginBottom: 16 }}>คำนวณจาก 7 มิติ × น้ำหนัก -- AI Real-time</div>
+                {DIMS.map(d => {
+                  const risk = dimRisks[d.id];
+                  const rc = risk >= 65 ? C.red : risk >= 45 ? C.orange : C.green;
+                  return (
+                    <div key={d.id} style={{ marginBottom: 10 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span>{d.icon}</span>
+                          <span style={{ fontSize: 13, color: "#1a1a3a", fontWeight: 600 }}>{d.name}</span>
+                          <span style={{ fontSize: 10, background: "#e8e8f0", color: "#666", borderRadius: 4, padding: "1px 5px" }}>×{Math.round(d.weight * 100)}%</span>
+                        </div>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: rc }}>{Math.round(risk)}</span>
+                      </div>
+                      <div style={{ height: 8, background: "#e0e0f0", borderRadius: 4, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${Math.min(100, risk)}%`, background: rc, borderRadius: 4, transition: "width .6s" }} />
+                      </div>
+                    </div>
+                  );
+                })}
+                <div style={{ marginTop: 12, background: "#1a1a3a", borderRadius: 10, padding: "10px 14px", fontFamily: "Consolas,monospace", fontSize: 12 }}>
+                  <span style={{ color: C.teal }}>OSRS</span>
+                  <span style={{ color: "#aaa" }}> = Σ(Dimension × Weight) = </span>
+                  <span style={{ color: osrsColor, fontWeight: "bold", fontSize: 18 }}>{osrs}</span>
+                  <span style={{ color: "#888" }}>/100</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+              {[{ lo: 0, hi: 25, l: "ปลอดภัย", c: C.green, desc: "พฤติกรรมดีเยี่ยม" }, { lo: 26, hi: 50, l: "เฝ้าระวัง", c: C.teal, desc: "ปรับเล็กน้อย" }, { lo: 51, hi: 75, l: "เสี่ยงสูง", c: C.orange, desc: "ต้องแก้ไข" }, { lo: 76, hi: 100, l: "วิกฤต", c: C.red, desc: "พบแพทย์ทันที" }].map(({ lo, hi, l, c, desc }) => {
+                const active = osrs >= lo && osrs <= hi;
+                return (
+                  <div key={lo} style={{ background: active ? "#fff" : "#f8f8ff", border: `2px solid ${active ? c : "#ddd"}`, borderRadius: 12, padding: "16px 14px", textAlign: "center", borderTop: `4px solid ${c}` }}>
+                    {active && <div style={{ fontSize: 9, color: c, fontWeight: "bold", marginBottom: 4 }}>● คุณอยู่นี่</div>}
+                    <div style={{ fontSize: 18, fontWeight: 900, color: c }}>{lo}-{hi}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1a1a3a", marginTop: 4 }}>{l}</div>
+                    <div style={{ fontSize: 11, color: "#888", marginTop: 3 }}>{desc}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ══ RESULTS ══ */}
+        {tab === "results" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+              {[
+                { l: "ท่าที่ทำวันนี้", v: totalStretch, u: "ท่า", c: C.teal },
+                { l: "Calories", v: totalCal, u: "kcal", c: C.orange },
+                { l: "OSRS ลดลง", v: totalStretch * 4, u: "pt", c: C.osrs },
+                { l: "Wellness", v: wellness, u: "/100", c: wellness > 65 ? C.green : C.orange },
+              ].map((s, i) => (
+                <div key={i} style={{ background: C.surf, border: `1px solid ${s.c}30`, borderRadius: 12, padding: "18px", textAlign: "center", borderTop: `3px solid ${s.c}` }}>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: s.c }}>{s.v}<span style={{ fontSize: 11, color: C.gray, marginLeft: 2 }}>{s.u}</span></div>
+                  <div style={{ fontSize: 11, color: C.gray, marginTop: 5 }}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: "linear-gradient(135deg,#1a0510,#1a1030)", border: "1px solid #3a1525", borderRadius: 14, padding: "22px", textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 800, ...gRed, marginBottom: 8 }}>HeartStretch × AI Wellness Platform</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, maxWidth: 480, margin: "0 auto 16px" }}>
+                {[{ v: "0", l: "แบบฟอร์มที่ต้องกรอก", c: C.green }, { v: "7", l: "มิติวัดอัตโนมัติ", c: C.teal }, { v: "Real-time", l: "ทุก 1.5 วินาที", c: C.purple }].map((s, i) => (
+                  <div key={i} style={{ background: "rgba(255,255,255,.06)", borderRadius: 10, padding: 12 }}>
+                    <div style={{ fontSize: 18, fontWeight: "bold", color: s.c }}>{s.v}</div>
+                    <div style={{ fontSize: 10, color: C.gray, marginTop: 3 }}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+              <button className="btn" onClick={() => setTab("workout")}
+                style={{ background: gBrand, color: "#000", border: "none", borderRadius: 12, padding: "12px 40px", fontSize: 14, fontWeight: 800 }}>
+                🤸 ยืดต่อเลย!
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
