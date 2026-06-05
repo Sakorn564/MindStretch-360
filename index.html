@@ -3,738 +3,708 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlexMind AI — Office Wellness Platform</title>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<title>FlexMind AI - Office Wellness</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#0f0f1a;color:#fff;-webkit-font-smoothing:antialiased}
-@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.btn{transition:all .15s;cursor:pointer}.btn:hover{opacity:.85;transform:translateY(-1px)}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#444;border-radius:2px}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; overflow-x: hidden; }
+.navbar { background: #111122; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222244; position: sticky; top: 0; z-index: 100; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-text { font-size: 20px; font-weight: 800; }
+.logo-text .brand { color: #ff6b35; }
+.logo-text .ai { color: #00e5d1; }
+.logo-sub { color: #888; font-size: 11px; letter-spacing: 2px; margin-left: 8px; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.badge-mood { background: #2a2a3a; border-radius: 20px; padding: 6px 16px; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.badge-osrs { background: #1a2a1a; border: 1px solid #00c851; border-radius: 20px; padding: 6px 16px; font-size: 14px; display: flex; align-items: center; gap: 6px; color: #00c851; }
+.badge-osrs .low { background: #00c851; color: #000; border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 700; margin-left: 4px; }
+.badge-hr { background: #2a1a1a; border: 1px solid #ff4466; border-radius: 20px; padding: 6px 16px; font-size: 14px; display: flex; align-items: center; gap: 6px; color: #ff4466; }
+.tabs { background: #111122; padding: 0 24px; display: flex; border-bottom: 1px solid #1a1a2e; position: sticky; top: 57px; z-index: 99; }
+.tab { padding: 14px 20px; font-size: 14px; cursor: pointer; color: #888; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+.tab.active { color: #fff; border-bottom: 2px solid #ff6b35; }
+.tab:hover { color: #ccc; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.main { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.hero-card { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a35 100%); border: 1px solid #2a2a4a; border-radius: 16px; padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; }
+.hero-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 50%, rgba(100,0,200,0.15) 0%, transparent 60%); }
+.hero-left { position: relative; z-index: 1; }
+.hero-sub { color: #888; font-size: 12px; margin-bottom: 8px; }
+.hero-title { font-size: 26px; font-weight: 800; color: #ff6b35; margin-bottom: 12px; line-height: 1.3; }
+.hero-meta { font-size: 14px; color: #aaa; margin-bottom: 20px; }
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-stretch { background: linear-gradient(135deg, #ff6b35, #ff4466); border: none; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-emotion { background: transparent; border: 1px solid #555; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 15px; cursor: pointer; }
+.btn-risk { background: transparent; border: 1px solid #00c851; color: #00c851; padding: 12px 24px; border-radius: 10px; font-size: 15px; cursor: pointer; }
+.hero-right { display: flex; gap: 28px; align-items: center; position: relative; z-index: 1; }
+.gauge-wrap { text-align: center; }
+.gauge-circle { position: relative; width: 100px; height: 100px; }
+.gauge-circle svg { width: 100px; height: 100px; transform: rotate(-90deg); }
+.gauge-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.gauge-val .num { font-size: 22px; font-weight: 800; }
+.gauge-val .lbl { font-size: 10px; color: #888; }
+.gauge-label { font-size: 12px; color: #888; margin-top: 4px; }
+.gauge-status { font-size: 11px; font-weight: 700; margin-top: 2px; }
+.metrics-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.metric-card { background: #111122; border: 1px solid #1e1e35; border-radius: 12px; padding: 16px 18px; }
+.metric-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+.metric-val { font-size: 28px; font-weight: 800; display: flex; align-items: baseline; gap: 4px; }
+.metric-unit { font-size: 14px; font-weight: 400; }
+.c-red{color:#ff4466} .c-green{color:#00c851} .c-blue{color:#00bfff} .c-yellow{color:#ffd700} .c-orange{color:#ff8c00} .c-teal{color:#00e5d1} .c-purple{color:#9b59b6}
+.bottom-row { display: grid; grid-template-columns: 1fr 1.2fr 0.7fr; gap: 16px; }
+.osrs-card { background: #0f1a1f; border: 1px solid #00e5d1; border-radius: 14px; padding: 20px; }
+.osrs-header { color: #00e5d1; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+.osrs-body { display: flex; gap: 20px; align-items: center; }
+.osrs-gauge { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+.osrs-gauge svg { width: 90px; height: 90px; transform: rotate(-90deg); }
+.osrs-gauge-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: 800; color: #00c851; }
+.osrs-bars { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.bar-label { color: #bbb; width: 80px; flex-shrink: 0; }
+.bar-bg { flex: 1; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.bar-num { width: 24px; text-align: right; font-weight: 700; font-size: 12px; }
+.right-col { display: flex; flex-direction: column; gap: 12px; }
+.mini-card { background: #111122; border: 1px solid #1e1e35; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex: 1; }
+.mini-val { font-size: 22px; font-weight: 800; color: #00bfff; }
+.mini-val span { font-size: 14px; color: #888; }
+.mini-label { font-size: 12px; color: #888; margin-top: 4px; }
+.mini-rule { font-size: 18px; font-weight: 800; color: #9b59b6; }
+
+/* ── EMOTION AI ── */
+.emotion-main { padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.emotion-card { background: #111122; border: 1px solid #1e1e35; border-radius: 14px; padding: 20px; }
+.emotion-card h3 { font-size: 14px; color: #888; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+.cam-box { background: #050510; border-radius: 12px; height: 300px; position: relative; overflow: hidden; border: 1px solid #1e1e35; display: flex; align-items: center; justify-content: center; }
+#emotionVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: none; border-radius: 12px; }
+#emotionCanvas2 { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.cam-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 2; }
+.cam-placeholder-icon { font-size: 52px; }
+.cam-placeholder-text { color: #888; font-size: 14px; text-align: center; line-height: 1.6; }
+.btn-cam { background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: #fff; padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.btn-cam:hover { opacity: 0.9; transform: translateY(-1px); }
+.cam-overlay-live { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,229,209,0.15); border: 1px solid #00e5d1; border-radius: 20px; padding: 5px 18px; font-size: 13px; color: #00e5d1; font-weight: 700; z-index: 5; white-space: nowrap; display: none; }
+.cam-live-dot { display: inline-block; width: 7px; height: 7px; background: #00c851; border-radius: 50%; margin-right: 5px; animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.face-frame-live { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%); width: 140px; height: 170px; border: 2px solid #00e5d1; border-radius: 14px; z-index: 4; pointer-events: none; display: none; animation: framePulse 2s ease-in-out infinite; }
+@keyframes framePulse { 0%,100%{border-color:#00e5d1} 50%{border-color:#667eea} }
+.scan-line { position: absolute; left: 8px; right: 8px; height: 2px; background: linear-gradient(90deg,transparent,#00e5d1,transparent); animation: scanMove 2.5s linear infinite; z-index: 4; display: none; }
+@keyframes scanMove { 0%{top:20%} 100%{top:80%} }
+.emotion-bars { display: flex; flex-direction: column; gap: 12px; }
+.emo-row { display: flex; align-items: center; gap: 10px; }
+.emo-label { width: 80px; font-size: 13px; color: #ccc; flex-shrink: 0; }
+.emo-track { flex: 1; height: 9px; background: #1a1a2e; border-radius: 4px; overflow: hidden; }
+.emo-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+.emo-pct { width: 36px; text-align: right; font-size: 13px; font-weight: 700; }
+.stress-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 18px; }
+.stress-stat { background: #0a0a18; border-radius: 10px; padding: 14px; text-align: center; border: 1px solid #1e1e35; }
+.stress-val { font-size: 22px; font-weight: 800; }
+.stress-lbl { font-size: 11px; color: #888; margin-top: 4px; }
+.emotion-timeline { grid-column: 1 / -1; }
+
+/* ── SMART STRETCH ── */
+.stretch-tab-wrap { width: 100%; height: calc(100vh - 113px); position: relative; background: #0a0a18; }
+.stretch-iframe { width: 100%; height: 100%; border: none; display: block; }
+.stretch-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0a0a18; z-index: 10; gap: 16px; }
+.stretch-spinner { width: 52px; height: 52px; border: 4px solid rgba(102,126,234,0.2); border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── RISK SCORE ── */
+.risk-main { padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.risk-card { background: #111122; border: 1px solid #1e1e35; border-radius: 14px; padding: 20px; }
+.risk-card.full { grid-column: 1 / -1; }
+.risk-card h3 { font-size: 14px; color: #888; margin-bottom: 16px; }
+.dim-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.dim-label { width: 120px; font-size: 12px; color: #ccc; flex-shrink: 0; }
+.dim-track { flex: 1; height: 8px; background: #1a1a2e; border-radius: 4px; overflow: hidden; }
+.dim-fill { height: 100%; border-radius: 4px; }
+.dim-num { width: 28px; text-align: right; font-weight: 700; font-size: 12px; }
+.rec-item { display: flex; gap: 10px; padding: 12px; background: #0a0a18; border-radius: 10px; border-left: 3px solid #667eea; margin-bottom: 10px; }
+.rec-icon { font-size: 18px; flex-shrink: 0; }
+.rec-text { font-size: 12px; color: #ccc; line-height: 1.6; }
+
+/* ── RESULTS ── */
+.results-main { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.results-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.result-stat { background: #111122; border: 1px solid #1e1e35; border-radius: 12px; padding: 18px; text-align: center; }
+.result-stat-val { font-size: 32px; font-weight: 800; }
+.result-stat-lbl { font-size: 12px; color: #888; margin-top: 4px; }
+.chart-card { background: #111122; border: 1px solid #1e1e35; border-radius: 14px; padding: 20px; }
+.chart-card h3 { font-size: 14px; color: #888; margin-bottom: 16px; }
+.results-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pose-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 12px; }
+.pose-name { width: 100px; color: #ccc; flex-shrink: 0; font-size: 11px; }
+.pose-track { flex: 1; height: 8px; background: #1a1a2e; border-radius: 4px; overflow: hidden; }
+.pose-fill { height: 100%; border-radius: 4px; }
+.pose-pct { width: 36px; text-align: right; font-weight: 700; font-size: 12px; }
+.streak-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.streak-day { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+.streak-active { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
+.streak-done { background: #1a2a3a; color: #00c851; border: 1px solid #00c851; }
+.streak-empty { background: #1a1a2e; color: #444; }
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel" data-type="module">
-const { useState, useEffect, useRef } = React;
 
-const C = {
-  bg:"#0f0f1a",surf:"#1a1a2e",surf2:"#22223a",surf3:"#2a2a45",
-  red:"#ff4466",orange:"#ffaa00",yellow:"#ffd700",green:"#00e676",
-  teal:"#00e5d1",blue:"#2266ff",purple:"#c084fc",pink:"#ff6b9d",
-  white:"#ffffff",gray:"#8888aa",lgray:"#ccccdd",osrs:"#ff6b35",
-};
-const gBrand = "linear-gradient(90deg,#ff4466,#ffaa00,#ffd700)";
-const gRed = {background:"linear-gradient(90deg,#ff4466,#ffaa00)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"};
-const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
-const rf = (a,b) => +(Math.random()*(b-a)+a).toFixed(1);
-
-const DIMS = [
-  {id:"sitting",name:"พฤติกรรมนั่ง",weight:0.22,icon:"🪑",col:"#ff4466"},
-  {id:"posture",name:"ท่าทาง",weight:0.20,icon:"🧍",col:"#ffaa00"},
-  {id:"mental",name:"ความเครียด",weight:0.18,icon:"🧠",col:"#c084fc"},
-  {id:"eye",name:"สายตา",weight:0.15,icon:"👁️",col:"#00e5d1"},
-  {id:"physical",name:"กายภาพ",weight:0.12,icon:"🤸",col:"#00e676"},
-  {id:"sleep",name:"นอนหลับ",weight:0.08,icon:"😴",col:"#99ccff"},
-  {id:"nutrition",name:"น้ำ/โภชนาการ",weight:0.05,icon:"💧",col:"#2266ff"},
-];
-
-function Ring({val,size=80,color,sub,glow=false}){
-  const r=size/2-8,circ=2*Math.PI*r;
-  const fill=Math.min(val/100,1)*circ*0.75,off=circ*0.125;
-  return (
-    <div style={{position:"relative",width:size,height:size,filter:glow?`drop-shadow(0 0 8px ${color})`:"none"}}>
-      <svg width={size} height={size} style={{transform:"rotate(-135deg)"}}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1e1e3a" strokeWidth={7}
-          strokeDasharray={`${circ*0.75} ${circ}`} strokeDashoffset={-off} strokeLinecap="round"/>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={7}
-          strokeDasharray={`${fill} ${circ}`} strokeDashoffset={-off} strokeLinecap="round"
-          style={{transition:"stroke-dasharray 0.8s"}}/>
-      </svg>
-      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-        <div style={{fontSize:size>80?22:size>60?17:13,fontWeight:"bold",color,lineHeight:1}}>{Math.round(val)}</div>
-        {sub&&<div style={{fontSize:9,color:C.gray,marginTop:2}}>{sub}</div>}
-      </div>
-    </div>
-  );
-}
-
-function Bar({val,color,h=5}){
-  return (
-    <div style={{height:h,background:"#1e1e3a",borderRadius:3,overflow:"hidden"}}>
-      <div style={{height:"100%",width:`${Math.min(100,val)}%`,background:color,borderRadius:3,transition:"width 0.6s"}}/>
-    </div>
-  );
-}
-
-// Smart Stretch Game embedded
-function SmartStretchTab({osrs,osrsColor,stress,emotion}){
-  const [loaded,setLoaded]=useState(false);
-  const gameHtml = `<!DOCTYPE html>
-<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Smart Stretch</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"><\/script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"><\/script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"><\/script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Prompt',sans-serif;background:linear-gradient(135deg,#0f0f1a,#1a1030);min-height:100vh;color:white}
-@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-@keyframes rot{to{transform:rotate(360deg)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.wrap{max-width:1080px;margin:0 auto;padding:.875rem}
-.topbar{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:1rem;padding:.6rem 1.1rem;margin-bottom:.875rem;flex-wrap:wrap;gap:.5rem}
-.brand{display:flex;align-items:center;gap:.5rem;font-size:1rem;font-weight:900}
-.brand .g{background:linear-gradient(90deg,#ff4466,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:2rem;padding:.3rem .8rem;font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
-.chip-osrs{background:rgba(255,107,53,.15);border-color:rgba(255,107,53,.4)}
-.main{display:grid;grid-template-columns:1.05fr .95fr;gap:.875rem}
-.col{display:flex;flex-direction:column;gap:.75rem}
-.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:.875rem;padding:1rem}
-.card-title{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.5;margin-bottom:.75rem}
-#cam-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#050510;border-radius:.75rem;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
-#webcam{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-#sk-canvas{position:absolute;inset:0;width:100%;height:100%}
-.cam-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(5,5,16,.9);gap:.625rem;z-index:10}
-.cam-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:.625rem;padding:.65rem 1.4rem;font-size:.875rem;font-weight:700;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .25s;width:100%;max-width:210px}
-.cam-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(102,126,234,.4)}
-.cam-btn.demo{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);margin-top:.25rem}
-.reba-corner{position:absolute;top:.5rem;right:.5rem;z-index:5;background:rgba(0,0,0,.75);border-radius:.5rem;padding:.25rem .55rem;font-size:.72rem;font-weight:700;border:1px solid rgba(255,255,255,.1)}
-.health-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.625rem}
-.hm{background:rgba(0,0,0,.3);border-radius:.55rem;padding:.55rem;text-align:center;border:1px solid rgba(255,255,255,.06)}
-.hm-val{font-size:1.15rem;font-weight:900;line-height:1}
-.hm-lbl{font-size:.58rem;opacity:.45;margin-top:.12rem}
-.hm-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:.3rem;overflow:hidden}
-.hm-bar-f{height:100%;border-radius:2px;transition:width .5s}
-.osrs-panel{background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.25);border-radius:.75rem;padding:.75rem}
-.osrs-lbl{font-size:.63rem;font-weight:700;color:#ff9f7a;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.35rem}
-.osrs-num{font-size:1.875rem;font-weight:900;color:#ff6b35;line-height:1}
-.osrs-bar-bg{height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin:.3rem 0;overflow:hidden}
-.osrs-bar-f{height:100%;border-radius:3px;transition:width .8s}
-.ex-list{display:flex;flex-direction:column;gap:.35rem}
-.ex-item{display:flex;align-items:center;gap:.625rem;padding:.55rem .65rem;background:rgba(255,255,255,.04);border-radius:.55rem;border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
-.ex-item:hover{background:rgba(255,255,255,.08);transform:translateX(3px)}
-.ex-item.active{background:rgba(255,215,0,.08);border-color:rgba(255,215,0,.3)}
-.ex-item.done{opacity:.55}
-.ex-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
-.ex-info{flex:1;min-width:0}
-.ex-name{font-size:.85rem;font-weight:700;line-height:1.2}
-.ex-sub{font-size:.62rem;opacity:.5;margin-top:.12rem}
-.ex-tags{display:flex;gap:.25rem;margin-top:.3rem;flex-wrap:wrap}
-.ex-tag{font-size:.58rem;padding:.08rem .38rem;border-radius:2rem;background:rgba(255,255,255,.1);font-weight:600}
-.ex-osrs-tag{background:rgba(255,107,53,.2);color:#ff9f7a}
-.ex-score{font-size:.78rem;font-weight:700;min-width:30px;text-align:right}
-.prog-box{background:rgba(0,0,0,.2);border-radius:.75rem;padding:.75rem}
-.cur-name{font-size:1rem;font-weight:700;margin-bottom:.12rem}
-.cur-sub{font-size:.68rem;opacity:.5;margin-bottom:.55rem}
-.timer-wrap{display:flex;align-items:baseline;gap:.3rem;margin:.4rem 0}
-.timer-num{font-size:2.875rem;font-weight:900;line-height:1;color:#ffd700}
-.acc-box{background:rgba(0,0,0,.25);border-radius:.55rem;padding:.75rem;text-align:center;margin:.4rem 0}
-.acc-num{font-size:2.1rem;font-weight:900}
-.acc-lbl{font-size:.78rem;font-weight:600;margin-top:.12rem}
-.prog-bar-bg{height:7px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin:.4rem 0}
-.prog-bar-f{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);border-radius:4px;transition:width .4s}
-.prog-lbl{display:flex;justify-content:space-between;font-size:.68rem;opacity:.5;margin-bottom:.2rem}
-.ctrl-row{display:flex;gap:.45rem;margin-top:.55rem}
-.ctrl{flex:1;padding:.55rem;border:none;border-radius:.55rem;font-weight:700;font-size:.78rem;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .18s}
-.ctrl:hover{transform:translateY(-1px)}
-.ctrl-p{background:linear-gradient(135deg,#667eea,#764ba2);color:white}
-.ctrl-s{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.15)}
-.ctrl-full{flex:2;background:linear-gradient(90deg,#ff4466,#ffaa00,#ffd700);color:#000}
-.result-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:flex;align-items:center;justify-content:center;padding:1rem}
-.result-card{background:linear-gradient(135deg,#1a0a2e,#0f1030);border-radius:1.25rem;padding:1.75rem;max-width:400px;width:100%;text-align:center;border:1px solid rgba(102,126,234,.4);animation:slideUp .4s ease}
-.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin:.875rem 0}
-.res-stat{background:rgba(255,255,255,.07);border-radius:.625rem;padding:.625rem;text-align:center}
-.res-val{font-size:1.2rem;font-weight:900}
-.res-lbl{font-size:.58rem;opacity:.45;margin-top:.1rem}
-.restart-btn{width:100%;padding:.75rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:.75rem;font-size:.95rem;font-weight:700;cursor:pointer;font-family:'Prompt',sans-serif;margin-top:.35rem}
-.spin{width:28px;height:28px;border:3px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:rot 1s linear infinite}
-@media(max-width:600px){.main{grid-template-columns:1fr}}
-</style></head>
-<body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand"><span>🤸</span><span class="g">FlexMind</span><span>AI</span><span style="font-size:.65rem;opacity:.5;margin-left:.25rem">SMART STRETCH</span></div>
-    <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-      <div class="chip"><span style="animation:beat 1s infinite;display:inline-block">❤️</span><span id="hrChip" style="color:#ff4466">--</span><span style="opacity:.5;font-size:.68rem">bpm</span></div>
-      <div class="chip chip-osrs">⚕️ OSRS <span id="osrsChip" style="color:#ff6b35">${osrs}</span></div>
-      <div class="chip">🔥 <span id="strChip">0</span> ท่า</div>
-      <div class="chip">💎 <span id="ptsChip">0</span> pts</div>
-      <div class="chip" style="background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3)">${stress > 60 ? "😰" : stress > 40 ? "😐" : "😊"} ${emotion}</div>
-    </div>
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo">
+    <span style="font-size:22px">🫀</span>
+    <span class="logo-text"><span class="brand">FlexMind</span> <span class="ai">AI</span></span>
+    <span class="logo-sub">OFFICE WELLNESS</span>
   </div>
+  <div class="nav-right">
+    <div class="badge-mood" id="navMood">😊 Happy</div>
+    <div class="badge-osrs">⚡ OSRS 44 <span class="low">LOW</span></div>
+    <div class="badge-hr">🩷 100 bpm</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('home',this)">🏠 หน้าหลัก</div>
+  <div class="tab" onclick="switchTab('emotion',this)">🧠 Emotion AI</div>
+  <div class="tab" onclick="switchTab('stretch',this)">⚡ Smart Stretch</div>
+  <div class="tab" onclick="switchTab('risk',this)">⚡ Risk Score</div>
+  <div class="tab" onclick="switchTab('results',this)">📊 ผลลัพธ์</div>
+</div>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="tab-content active" id="tab-home">
   <div class="main">
-    <div class="col">
-      <div class="card">
-        <div class="card-title">📷 MediaPipe Pose Detection</div>
-        <div id="cam-wrap">
-          <video id="webcam" autoplay playsinline></video>
-          <canvas id="sk-canvas"></canvas>
-          <div class="reba-corner" id="rebaBadge" style="display:none">REBA <span id="rebaVal" style="color:#34D399">--</span></div>
-          <div class="cam-ov" id="camOv">
-            <div style="font-size:2.25rem">📷</div>
-            <div style="font-size:.85rem;opacity:.75;text-align:center;padding:0 1rem">เปิดกล้องเพื่อตรวจจับท่าทาง Real-time</div>
-            <button class="cam-btn" onclick="startCam()">🎥 เริ่มกล้อง AI</button>
-            <button class="cam-btn demo" onclick="startDemo()">🎮 Demo Mode</button>
-          </div>
-        </div>
-        <div class="health-mini">
-          <div class="hm"><div class="hm-val" id="hmReba" style="color:#a5b4fc">--</div><div class="hm-lbl">REBA</div><div class="hm-bar"><div class="hm-bar-f" id="hmRebaBar" style="width:0%;background:#a5b4fc"></div></div></div>
-          <div class="hm"><div class="hm-val" id="hmAcc" style="color:#ffd700">0%</div><div class="hm-lbl">Accuracy</div><div class="hm-bar"><div class="hm-bar-f" id="hmAccBar" style="width:0%;background:#ffd700"></div></div></div>
-          <div class="hm"><div class="hm-val" id="hmDone" style="color:#00e676">0/8</div><div class="hm-lbl">ท่าสำเร็จ</div><div class="hm-bar"><div class="hm-bar-f" id="hmDoneBar" style="width:0%;background:#00e676"></div></div></div>
-          <div class="hm"><div class="hm-val" id="hmPts" style="color:#ffaa00">0</div><div class="hm-lbl">Points</div><div class="hm-bar"><div class="hm-bar-f" id="hmPtsBar" style="width:0%;background:#ffaa00"></div></div></div>
+    <div class="hero-card">
+      <div class="hero-left">
+        <div class="hero-sub">FlexMind AI × Office Wellness Platform</div>
+        <div class="hero-title">ร่างกายและจิตใจพร้อมรับมืออออฟฟิศซินโดรมไหม?</div>
+        <div class="hero-meta">อารมณ์: 😊 <span style="color:#ffd700">Happy</span> · ความเครียด: <span style="color:#00e5d1;font-weight:700">13%</span> · ท่าทาง: <span style="color:#00c851;font-weight:700">69%</span></div>
+        <div class="hero-btns">
+          <button class="btn-stretch" onclick="switchTab('stretch',document.querySelectorAll('.tab')[2])">🚀 เริ่ม Smart Stretch</button>
+          <button class="btn-emotion" onclick="switchTab('emotion',document.querySelectorAll('.tab')[1])">🧠 Emotion AI</button>
+          <button class="btn-risk" onclick="switchTab('risk',document.querySelectorAll('.tab')[3])">⚡ Risk 44</button>
         </div>
       </div>
-      <div class="card">
-        <div class="osrs-panel">
-          <div class="osrs-lbl">⚕️ OSRS Risk Score</div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div><div class="osrs-num" id="osrsMain">${osrs}</div><div style="font-size:.7rem;color:#ff9f7a;margin-top:.15rem">/ 100 — ${osrs >= 70 ? "HIGH ⚠️" : osrs >= 45 ? "MED ⚡" : "LOW ✅"}</div></div>
-            <div style="text-align:right"><div style="font-size:.68rem;color:#ff9f7a;opacity:.7">ยืดครบ 8 ท่า</div><div style="font-size:.85rem;font-weight:700;color:#ff6b35">ลดได้ ~37pt</div></div>
-          </div>
-          <div class="osrs-bar-bg"><div class="osrs-bar-f" id="osrsBarFill" style="width:${osrs}%;background:${osrs >= 70 ? "#ff4466" : osrs >= 45 ? "#ffaa00" : "#00e676"}"></div></div>
+      <div class="hero-right">
+        <div class="gauge-wrap">
+          <div class="gauge-circle"><svg viewBox="0 0 100 100"><circle fill="none" stroke="#222" stroke-width="8" cx="50" cy="50" r="42"/><circle fill="none" stroke="#00c851" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="105" cx="50" cy="50" r="42"/></svg><div class="gauge-val"><div class="num" style="color:#00c851">56</div><div class="lbl">OSRS</div></div></div>
+          <div class="gauge-label">OSRS</div><div class="gauge-status" style="color:#00c851">Risk LOW</div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-title">📊 Progress &amp; Timer</div>
-        <div class="prog-box">
-          <div class="cur-name" id="curName">กด "เริ่มกล้อง" หรือ "Demo"</div>
-          <div class="cur-sub" id="curSub">เลือกท่าหรือกด Full 8 ท่า</div>
-          <div class="timer-wrap"><div class="timer-num" id="timerNum">--</div><div style="font-size:.75rem;opacity:.4">วินาที</div></div>
-          <div class="acc-box">
-            <div class="acc-num" id="accNum" style="color:#667eea">--</div>
-            <div class="acc-lbl" id="accLbl" style="opacity:.5">รอเริ่มต้น</div>
-          </div>
-          <div>
-            <div class="prog-lbl"><span>ความคืบหน้า</span><span><span id="doneNum">0</span>/8 ท่า</span></div>
-            <div class="prog-bar-bg"><div class="prog-bar-f" id="progFill" style="width:0%"></div></div>
-          </div>
-          <div class="ctrl-row">
-            <button class="ctrl ctrl-s" onclick="skipEx()">⏭ ข้าม</button>
-            <button class="ctrl ctrl-s" onclick="togglePause()" id="pauseBtn">⏸ หยุด</button>
-            <button class="ctrl ctrl-full ctrl-p" onclick="startAll()">▶ Full 8 ท่า</button>
-          </div>
+        <div class="gauge-wrap">
+          <div class="gauge-circle"><svg viewBox="0 0 100 100"><circle fill="none" stroke="#222" stroke-width="8" cx="50" cy="50" r="42"/><circle fill="none" stroke="#00bfff" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="79" cx="50" cy="50" r="42"/></svg><div class="gauge-val"><div class="num" style="color:#00bfff">69</div><div class="lbl">Posture</div></div></div>
+          <div class="gauge-label">Posture</div><div class="gauge-status" style="color:#00bfff">ท่าทาง</div>
+        </div>
+        <div class="gauge-wrap">
+          <div class="gauge-circle"><svg viewBox="0 0 100 100"><circle fill="none" stroke="#222" stroke-width="8" cx="50" cy="50" r="42"/><circle fill="none" stroke="#9b59b6" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="52" cx="50" cy="50" r="42"/></svg><div class="gauge-val"><div class="num" style="color:#9b59b6">80</div><div class="lbl">Wellness</div></div></div>
+          <div class="gauge-label">Wellness</div><div class="gauge-status" style="color:#9b59b6">สุขภาวะ</div>
         </div>
       </div>
     </div>
-    <div class="col">
-      <div class="card" style="flex:1">
-        <div class="card-title">⚡ 8 ท่ายืดเส้น — คลิกเพื่อเริ่ม</div>
-        <div class="ex-list" id="exList"></div>
+    <div class="metrics-row">
+      <div class="metric-card"><div class="metric-label">Heart Rate</div><div class="metric-val c-red">100<span class="metric-unit">bpm</span></div></div>
+      <div class="metric-card"><div class="metric-label">SpO2</div><div class="metric-val c-green">95<span class="metric-unit">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">HRV</div><div class="metric-val c-blue">50<span class="metric-unit">ms</span></div></div>
+      <div class="metric-card"><div class="metric-label">ความเครียด</div><div class="metric-val c-yellow">13<span class="metric-unit">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">ความเหนื่อยล้า</div><div class="metric-val c-orange">44<span class="metric-unit">%</span></div></div>
+      <div class="metric-card"><div class="metric-label">⚡ OSRS</div><div class="metric-val c-teal">44<span class="metric-unit">/100</span></div></div>
+    </div>
+    <div class="bottom-row">
+      <div class="osrs-card">
+        <div class="osrs-header">⚡ OSRS — 7 มิติ</div>
+        <div class="osrs-body">
+          <div class="osrs-gauge"><svg viewBox="0 0 90 90"><circle cx="45" cy="45" r="36" fill="none" stroke="#222" stroke-width="8"/><circle cx="45" cy="45" r="36" fill="none" stroke="#00c851" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="90" transform="rotate(-90 45 45)"/></svg><div class="osrs-gauge-val">56</div></div>
+          <div class="osrs-bars">
+            <div class="bar-row"><div class="bar-label">🧍 พฤติกรรมนั่ง</div><div class="bar-bg"><div class="bar-fill" style="width:48%;background:#ff4466"></div></div><div class="bar-num" style="color:#ff4466">48</div></div>
+            <div class="bar-row"><div class="bar-label">🏃 ท่าทาง</div><div class="bar-bg"><div class="bar-fill" style="width:31%;background:#ffd700"></div></div><div class="bar-num" style="color:#ffd700">31</div></div>
+            <div class="bar-row"><div class="bar-label">😰 ความเครียด</div><div class="bar-bg"><div class="bar-fill" style="width:13%;background:#ff8c00"></div></div><div class="bar-num" style="color:#ff8c00">13</div></div>
+            <div class="bar-row"><div class="bar-label">👁 สายตา</div><div class="bar-bg"><div class="bar-fill" style="width:60%;background:#00e5d1"></div></div><div class="bar-num" style="color:#00e5d1">60</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="background:linear-gradient(160deg,#1a1020,#2a1535,#1a1020);border:1px solid #3a2050;border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(150,0,255,0.2) 0%,transparent 60%);"></div>
+        <div style="font-size:52px;margin-bottom:8px;position:relative;z-index:1;">🤸</div>
+        <div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#ff6b35,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;position:relative;z-index:1;">Smart Stretch</div>
+        <div style="color:#aaa;font-size:13px;margin-bottom:20px;position:relative;z-index:1;">8 ท่า · MediaPipe AI · ลด OSRS ได้ทันที</div>
+        <button onclick="switchTab('stretch',document.querySelectorAll('.tab')[2])" style="background:linear-gradient(135deg,#ff8c00,#ff6b35);border:none;color:#fff;padding:12px 32px;border-radius:24px;font-size:15px;font-weight:700;cursor:pointer;position:relative;z-index:1;">เริ่มเลย →</button>
+      </div>
+      <div class="right-col">
+        <div class="mini-card"><div style="font-size:28px;margin-bottom:6px">💧</div><div class="mini-val">3<span>/8</span></div><div class="mini-label">กดเพิ่มแก้วน้ำ</div></div>
+        <div class="mini-card"><div style="font-size:28px;margin-bottom:6px">👁</div><div class="mini-rule">20-20-20</div><div class="mini-label">มองไกล 20 ฟุต ทุก 20 นาที</div></div>
       </div>
     </div>
   </div>
 </div>
-<div class="result-ov" id="resultOv" style="display:none">
-  <div class="result-card">
-    <div style="font-size:2.75rem">🏆</div>
-    <div style="font-size:1.4rem;font-weight:900;margin:.25rem 0">เสร็จสิ้น!</div>
-    <div style="font-size:2.75rem;font-weight:900;color:#ffd700;margin:.4rem 0" id="resBig">0%</div>
-    <div class="res-grid" id="resGrid"></div>
-    <button class="restart-btn" onclick="restartAll()">🔄 เล่นอีกรอบ</button>
+
+<!-- ══════════ EMOTION AI ══════════ -->
+<div class="tab-content" id="tab-emotion">
+  <div class="emotion-main">
+
+    <!-- Camera Face Detection -->
+    <div class="emotion-card">
+      <h3>🎭 Face Detection — Real-time Camera</h3>
+      <div class="cam-box" id="camBox">
+        <video id="emotionVideo" autoplay playsinline muted></video>
+        <canvas id="emotionCanvas2"></canvas>
+        <div class="face-frame-live" id="faceFrame"></div>
+        <div class="scan-line" id="scanLine"></div>
+        <div class="cam-overlay-live" id="camLiveBadge"><span class="cam-live-dot"></span><span id="liveEmotionText">😊 Happy — 94%</span></div>
+        <div class="cam-placeholder" id="camPlaceholder">
+          <div class="cam-placeholder-icon">📷</div>
+          <div class="cam-placeholder-text">เปิดกล้องเพื่อวิเคราะห์อารมณ์<br>แบบ Real-time ด้วย AI</div>
+          <button class="btn-cam" onclick="startEmotionCam()">🎥 เปิดกล้อง Emotion AI</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emotion Bars -->
+    <div class="emotion-card">
+      <h3>📊 สัดส่วนอารมณ์ปัจจุบัน</h3>
+      <div class="emotion-bars">
+        <div class="emo-row"><div class="emo-label">😊 Happy</div><div class="emo-track"><div class="emo-fill" id="emo-happy" style="width:72%;background:linear-gradient(90deg,#ffd700,#ff8c00)"></div></div><div class="emo-pct" style="color:#ffd700" id="pct-happy">72%</div></div>
+        <div class="emo-row"><div class="emo-label">😌 Neutral</div><div class="emo-track"><div class="emo-fill" id="emo-neutral" style="width:15%;background:linear-gradient(90deg,#00bfff,#0080ff)"></div></div><div class="emo-pct" style="color:#00bfff" id="pct-neutral">15%</div></div>
+        <div class="emo-row"><div class="emo-label">😟 Sad</div><div class="emo-track"><div class="emo-fill" id="emo-sad" style="width:5%;background:linear-gradient(90deg,#667eea,#764ba2)"></div></div><div class="emo-pct" style="color:#667eea" id="pct-sad">5%</div></div>
+        <div class="emo-row"><div class="emo-label">😠 Angry</div><div class="emo-track"><div class="emo-fill" id="emo-angry" style="width:3%;background:linear-gradient(90deg,#ff4466,#cc0033)"></div></div><div class="emo-pct" style="color:#ff4466" id="pct-angry">3%</div></div>
+        <div class="emo-row"><div class="emo-label">😨 Stressed</div><div class="emo-track"><div class="emo-fill" id="emo-stressed" style="width:5%;background:linear-gradient(90deg,#ff8c00,#ff4400)"></div></div><div class="emo-pct" style="color:#ff8c00" id="pct-stressed">5%</div></div>
+      </div>
+      <div class="stress-grid">
+        <div class="stress-stat"><div class="stress-val" id="stressLevel" style="color:#00c851">Low</div><div class="stress-lbl">ระดับความเครียด</div></div>
+        <div class="stress-stat"><div class="stress-val" id="stressScore" style="color:#ffd700">13%</div><div class="stress-lbl">Stress Score</div></div>
+        <div class="stress-stat"><div class="stress-val" id="mainEmotion" style="color:#00e5d1">😊</div><div class="stress-lbl">อารมณ์หลัก</div></div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="emotion-card emotion-timeline">
+      <h3>📈 Emotion Timeline — วันนี้</h3>
+      <div style="background:#0a0a18;border-radius:12px;padding:12px;height:150px;position:relative;overflow:hidden;">
+        <canvas id="emotionTimeline" style="width:100%;height:126px;"></canvas>
+      </div>
+    </div>
+
+    <!-- Stress Detail -->
+    <div class="emotion-card">
+      <h3>🧘 Stress Analysis Detail</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">ความเครียดสะสม</div>
+          <div class="stress-val" id="stressCum" style="color:#ffd700;font-size:24px;">13%</div>
+          <div style="height:4px;background:#1a1a2e;border-radius:2px;margin-top:8px;overflow:hidden;"><div id="stressCumBar" style="height:100%;width:13%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:2px;"></div></div>
+          <div style="font-size:11px;color:#00c851;margin-top:6px;">ต่ำกว่าเกณฑ์ ✓</div>
+        </div>
+        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">Valence Score</div>
+          <div id="valenceScore" style="font-size:24px;font-weight:800;color:#00c851;">+0.72</div>
+          <div style="font-size:11px;color:#888;margin-top:8px;">อารมณ์เชิงบวก</div>
+        </div>
+        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">Arousal Level</div>
+          <div id="arousalLevel" style="font-size:24px;font-weight:800;color:#9b59b6;">Mid</div>
+          <div style="font-size:11px;color:#888;margin-top:8px;">ตื่นตัวพอดี</div>
+        </div>
+        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">Cortisol Index</div>
+          <div id="cortisolIdx" style="font-size:24px;font-weight:800;color:#00e5d1;">Low</div>
+          <div style="font-size:11px;color:#888;margin-top:8px;">จากการวิเคราะห์สีหน้า</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- ══════════ SMART STRETCH ══════════ -->
+<div class="tab-content" id="tab-stretch">
+  <div class="stretch-tab-wrap">
+    <div class="stretch-loading" id="stretchLoading">
+      <div style="font-size:56px;">🤸</div>
+      <div style="font-size:22px;font-weight:800;color:#fff;">Smart Stretch Game</div>
+      <div class="stretch-spinner"></div>
+      <div style="color:#aaa;font-size:15px;">กำลังโหลด MediaPipe AI + กล้อง...</div>
+    </div>
+    <iframe id="stretchFrame" class="stretch-iframe"
+      src="https://sakorn564.github.io/office-syndrome-game/game.html"
+      allow="camera; microphone; accelerometer; gyroscope; autoplay; clipboard-write; encrypted-media; fullscreen"
+      allowfullscreen
+      onload="document.getElementById('stretchLoading').style.display='none'">
+    </iframe>
+  </div>
+</div>
+
+<!-- ══════════ RISK SCORE ══════════ -->
+<div class="tab-content" id="tab-risk">
+  <div class="risk-main">
+    <div class="risk-card">
+      <h3>⚡ OSRS Score — รวม 7 มิติ</h3>
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">
+        <div style="position:relative;width:160px;height:160px;">
+          <svg width="160" height="160" style="transform:rotate(-90deg)"><circle cx="80" cy="80" r="68" fill="none" stroke="#1a1a2e" stroke-width="12"/><circle cx="80" cy="80" r="68" fill="none" stroke="#00c851" stroke-width="12" stroke-linecap="round" stroke-dasharray="427.3" stroke-dashoffset="192"/></svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;"><div style="font-size:42px;font-weight:900;color:#00c851;">44</div><div style="font-size:12px;color:#888;">OSRS</div><div style="font-size:11px;color:#00c851;font-weight:700;">LOW RISK</div></div>
+        </div>
+      </div>
+      <div class="dim-row"><div class="dim-label">🧍 พฤติกรรมนั่ง</div><div class="dim-track"><div class="dim-fill" style="width:48%;background:#ff4466;"></div></div><div class="dim-num" style="color:#ff4466;">48</div></div>
+      <div class="dim-row"><div class="dim-label">🏃 ท่าทาง</div><div class="dim-track"><div class="dim-fill" style="width:31%;background:#ffd700;"></div></div><div class="dim-num" style="color:#ffd700;">31</div></div>
+      <div class="dim-row"><div class="dim-label">😰 ความเครียด</div><div class="dim-track"><div class="dim-fill" style="width:13%;background:#ff8c00;"></div></div><div class="dim-num" style="color:#ff8c00;">13</div></div>
+      <div class="dim-row"><div class="dim-label">👁 สายตา</div><div class="dim-track"><div class="dim-fill" style="width:60%;background:#00e5d1;"></div></div><div class="dim-num" style="color:#00e5d1;">60</div></div>
+      <div class="dim-row"><div class="dim-label">💪 กล้ามเนื้อ</div><div class="dim-track"><div class="dim-fill" style="width:38%;background:#9b59b6;"></div></div><div class="dim-num" style="color:#9b59b6;">38</div></div>
+      <div class="dim-row"><div class="dim-label">🧠 จิตใจ</div><div class="dim-track"><div class="dim-fill" style="width:22%;background:#00bfff;"></div></div><div class="dim-num" style="color:#00bfff;">22</div></div>
+      <div class="dim-row"><div class="dim-label">🏃 การเคลื่อนไหว</div><div class="dim-track"><div class="dim-fill" style="width:55%;background:#ff6b35;"></div></div><div class="dim-num" style="color:#ff6b35;">55</div></div>
+    </div>
+    <div class="risk-card">
+      <h3>💡 คำแนะนำเฉพาะตัว</h3>
+      <div class="rec-item"><div class="rec-icon">🪑</div><div class="rec-text"><strong>ปรับท่านั่ง:</strong> นั่งหลังตรง เท้าราบพื้น เข่างอ 90° ตามมาตรฐาน ISO 9241-5</div></div>
+      <div class="rec-item"><div class="rec-icon">⏰</div><div class="rec-text"><strong>พักสม่ำเสมอ:</strong> ใช้หลัก 20-20-20 Rule ทุก 20 นาที พักสายตา 20 วินาที (NIOSH)</div></div>
+      <div class="rec-item"><div class="rec-icon">🏋️</div><div class="rec-text"><strong>ออกกำลังกาย:</strong> WHO แนะนำ 150 นาที/สัปดาห์ ยืดเหยียดทุกวันลดความเสี่ยง MSDs 35%</div></div>
+      <div class="rec-item"><div class="rec-icon">🖥️</div><div class="rec-text"><strong>ปรับ Ergonomics:</strong> จอควรอยู่ระดับสายตา ห่าง 50-70 ซม. (OSHA)</div></div>
+      <div class="rec-item"><div class="rec-icon">💧</div><div class="rec-text"><strong>ดื่มน้ำ:</strong> อย่างน้อย 8 แก้ว/วัน ลดอาการล้าตาและเมื่อยกล้ามเนื้อ</div></div>
+    </div>
+    <div class="risk-card full">
+      <h3>📊 OSPE Predictive Engine — ความเสี่ยง 5 ปีข้างหน้า</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div style="background:#0a0a18;border-radius:12px;padding:18px;text-align:center;border:1px solid #2a2a4a;"><div style="font-size:11px;color:#a5b4fc;letter-spacing:1px;margin-bottom:8px;">GRBJ INDEX</div><div style="font-size:36px;font-weight:900;color:#a5b4fc;">32</div><div style="height:4px;background:#1a1a2e;border-radius:2px;margin:10px 0;overflow:hidden;"><div style="height:100%;width:32%;background:#a5b4fc;border-radius:2px;"></div></div><div style="font-size:11px;color:#888;">Gradual Region Body Joint</div></div>
+        <div style="background:#0a0a18;border-radius:12px;padding:18px;text-align:center;border:1px solid #2a2a4a;"><div style="font-size:11px;color:#86efac;letter-spacing:1px;margin-bottom:8px;">WFH INDEX</div><div style="font-size:36px;font-weight:900;color:#86efac;">28</div><div style="height:4px;background:#1a1a2e;border-radius:2px;margin:10px 0;overflow:hidden;"><div style="height:100%;width:28%;background:#86efac;border-radius:2px;"></div></div><div style="font-size:11px;color:#888;">Work-From-Home Risk</div></div>
+        <div style="background:#0a0a18;border-radius:12px;padding:18px;text-align:center;border:1px solid #2a2a4a;"><div style="font-size:11px;color:#fcd34d;letter-spacing:1px;margin-bottom:8px;">YHP 5-YEAR</div><div style="font-size:36px;font-weight:900;color:#fcd34d;">18%</div><div style="height:4px;background:#1a1a2e;border-radius:2px;margin:10px 0;overflow:hidden;"><div style="height:100%;width:18%;background:#fcd34d;border-radius:2px;"></div></div><div style="font-size:11px;color:#888;">Years-of-Harm Prediction</div></div>
+      </div>
+      <div style="margin-top:16px;padding:12px 16px;background:rgba(0,200,81,0.08);border-radius:10px;border:1px solid rgba(0,200,81,0.2);font-size:13px;color:#86efac;">🎯 บริเวณที่ต้องระวัง: <strong>คอ · ไหล่ · หลังส่วนล่าง</strong> — แนะนำยืดเหยียดด้วย Smart Stretch ทุกวัน</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ RESULTS ══════════ -->
+<div class="tab-content" id="tab-results">
+  <div class="results-main">
+    <div class="results-grid">
+      <div class="result-stat"><div class="result-stat-val" style="color:#ffd700;">🔥 12</div><div class="result-stat-lbl">Streak วัน</div></div>
+      <div class="result-stat"><div class="result-stat-val" style="color:#00c851;">87%</div><div class="result-stat-lbl">ความแม่นยำเฉลี่ย</div></div>
+      <div class="result-stat"><div class="result-stat-val" style="color:#00e5d1;">1,240</div><div class="result-stat-lbl">💎 Points รวม</div></div>
+      <div class="result-stat"><div class="result-stat-val" style="color:#9b59b6;">24</div><div class="result-stat-lbl">วันที่เล่นรวม</div></div>
+    </div>
+    <div class="chart-card">
+      <h3>📊 ความแม่นยำรายสัปดาห์ — 4 สัปดาห์ล่าสุด</h3>
+      <div style="background:#0a0a18;border-radius:10px;padding:12px;height:170px;"><canvas id="weeklyCanvas" style="width:100%;height:146px;"></canvas></div>
+    </div>
+    <div class="results-bottom">
+      <div class="chart-card">
+        <h3>💪 ความแม่นยำแต่ละท่า</h3>
+        <div class="pose-row"><div class="pose-name">ยืดคอ</div><div class="pose-track"><div class="pose-fill" style="width:92%;background:linear-gradient(90deg,#00c851,#00ff88);"></div></div><div class="pose-pct" style="color:#00c851;">92%</div></div>
+        <div class="pose-row"><div class="pose-name">หมุนไหล่</div><div class="pose-track"><div class="pose-fill" style="width:88%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">88%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดหลัง</div><div class="pose-track"><div class="pose-fill" style="width:85%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">85%</div></div>
+        <div class="pose-row"><div class="pose-name">โน้มข้าง</div><div class="pose-track"><div class="pose-fill" style="width:79%;background:linear-gradient(90deg,#ffd700,#ff8c00);"></div></div><div class="pose-pct" style="color:#ffd700;">79%</div></div>
+        <div class="pose-row"><div class="pose-name">เปิดอก</div><div class="pose-track"><div class="pose-fill" style="width:91%;background:linear-gradient(90deg,#00c851,#00ff88);"></div></div><div class="pose-pct" style="color:#00c851;">91%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดสะโพก</div><div class="pose-track"><div class="pose-fill" style="width:75%;background:linear-gradient(90deg,#ffd700,#ff8c00);"></div></div><div class="pose-pct" style="color:#ffd700;">75%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดต้นขา</div><div class="pose-track"><div class="pose-fill" style="width:83%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">83%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดน่อง</div><div class="pose-track"><div class="pose-fill" style="width:88%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">88%</div></div>
+      </div>
+      <div class="chart-card">
+        <h3>🗓️ Streak Calendar — 28 วันล่าสุด</h3>
+        <div class="streak-row" id="streakCal"></div>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;"><span style="font-size:16px;">🌱</span><div><div style="font-size:13px;font-weight:700;">เริ่มต้นดี</div><div style="font-size:11px;color:#888;">เล่นครั้งแรก</div></div><span style="margin-left:auto;font-size:10px;background:#1a3a1a;color:#00c851;padding:2px 8px;border-radius:10px;">✓ Unlocked</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;"><span style="font-size:16px;">🔥</span><div><div style="font-size:13px;font-weight:700;">3 วันต่อเนื่อง</div><div style="font-size:11px;color:#888;">Streak 3 วัน</div></div><span style="margin-left:auto;font-size:10px;background:#1a3a1a;color:#00c851;padding:2px 8px;border-radius:10px;">✓ Unlocked</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;"><span style="font-size:16px;">⚡</span><div><div style="font-size:13px;font-weight:700;">หนึ่งสัปดาห์</div><div style="font-size:11px;color:#888;">Streak 7 วัน</div></div><span style="margin-left:auto;font-size:10px;background:#1a3a1a;color:#00c851;padding:2px 8px;border-radius:10px;">✓ Unlocked</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;opacity:0.5;"><span style="font-size:16px;">💎</span><div><div style="font-size:13px;font-weight:700;">สม่ำเสมอ</div><div style="font-size:11px;color:#888;">Streak 30 วัน</div></div><span style="margin-left:auto;font-size:10px;background:#1a1a2e;color:#666;padding:2px 8px;border-radius:10px;">🔒 Locked</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-const EXS=[
-  {name:"เอียงคอ",sub:"Neck Stretch",dur:30,hr:[65,85],col:"#ff6b6b",fix:"ปวดคอ",pts:4},
-  {name:"หมุนไหล่",sub:"Shoulder Roll",dur:40,hr:[70,90],col:"#ffaa00",fix:"ปวดไหล่",pts:5},
-  {name:"ยืดแขน",sub:"Arm Stretch",dur:35,hr:[70,92],col:"#00e5d1",fix:"ชาแขน",pts:4},
-  {name:"ยืดหลัง",sub:"Back Stretch",dur:45,hr:[72,95],col:"#2266ff",fix:"ปวดหลัง",pts:6},
-  {name:"บิดลำตัว",sub:"Spine Twist",dur:40,hr:[78,100],col:"#c084fc",fix:"ปวดเอว",pts:5},
-  {name:"ยืดน่อง",sub:"Calf Stretch",dur:50,hr:[80,105],col:"#00e676",fix:"ปวดขา",pts:5},
-  {name:"แอ่นหลัง",sub:"Back Arch",dur:35,hr:[75,98],col:"#ff6b9d",fix:"ปวดหลังล่าง",pts:5},
-  {name:"ยืดข้อมือ",sub:"Wrist Stretch",dur:25,hr:[65,82],col:"#ffd700",fix:"ปวดข้อมือ",pts:3}
-];
-let G={idx:0,scores:[],paused:false,active:false,time:0,acc:0,done:0,pts:0,osrs:${osrs},total:0};
-let timI=null,simI=null,poseObj=null,camObj=null;
-function svgB(c){return '<svg viewBox="0 0 60 60" width="34" height="34"><circle cx="30" cy="10" r="7" fill="none" stroke="'+c+'" stroke-width="2"/><line x1="30" y1="17" x2="30" y2="40" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="27" x2="16" y2="36" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="27" x2="44" y2="36" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="40" x2="22" y2="54" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="40" x2="38" y2="54" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/></svg>';}
-function buildList(){
-  document.getElementById('exList').innerHTML=EXS.map((ex,i)=>{
-    const isDone=G.scores[i]!==undefined,isCur=i===G.idx&&G.active,sc=G.scores[i];
-    const scC=sc>=90?'#00e676':sc>=80?'#60a5fa':sc>=50?'#ffd700':'#ff4466';
-    return '<div class="ex-item'+(isDone?' done':isCur?' active':'')+'" id="ei'+i+'" onclick="startSingle('+i+')">'
-      +'<div class="ex-bar" style="background:'+ex.col+'"></div>'
-      +'<div>'+svgB(ex.col)+'</div>'
-      +'<div class="ex-info"><div class="ex-name" style="color:'+ex.col+'">'+ex.name+'</div>'
-      +'<div class="ex-sub">'+ex.fix+'</div>'
-      +'<div class="ex-tags"><span class="ex-tag" style="color:'+ex.col+'">HR '+ex.hr[0]+'-'+ex.hr[1]+'</span>'
-      +'<span class="ex-tag">'+ex.dur+'s</span>'
-      +'<span class="ex-tag ex-osrs-tag">-'+ex.pts+'pt</span></div></div>'
-      +'<div class="ex-score" style="color:'+(isDone?scC:'rgba(255,255,255,.2)')+'">'+(isDone?sc+'%':'--')+'</div></div>';
-  }).join('');
+// ══ TAB SWITCHING ══
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'results') { drawWeeklyChart(); buildStreakCal(); }
+  if (name === 'emotion') { setTimeout(drawEmotionTimeline, 100); }
 }
-function loadEx(idx){
-  if(idx>=EXS.length){endGame();return;}
-  const ex=EXS[idx];G.idx=idx;G.time=ex.dur;G.active=true;
-  document.getElementById('curName').textContent=(idx+1)+'. '+ex.name+' — '+ex.sub;
-  document.getElementById('curSub').textContent=ex.fix+' · HR '+ex.hr[0]+'-'+ex.hr[1]+' · -'+ex.pts+' OSRS pts';
-  document.getElementById('timerNum').textContent=ex.dur;
-  document.getElementById('timerNum').style.color='#ffd700';
-  document.getElementById('doneNum').textContent=idx;
-  document.getElementById('progFill').style.width=(idx/EXS.length*100)+'%';
-  buildList();startTimer();
-}
-function startTimer(){
-  clearInterval(timI);
-  timI=setInterval(()=>{
-    if(G.paused)return;G.time--;
-    document.getElementById('timerNum').textContent=G.time;
-    if(G.time<=5)document.getElementById('timerNum').style.color='#ff4466';
-    if(G.time<=0){clearInterval(timI);completeEx();}
-  },1000);
-}
-function completeEx(){
-  const sc=G.acc||0;G.scores[G.idx]=sc;G.done++;G.total+=sc;
-  G.osrs=Math.max(0,G.osrs-EXS[G.idx].pts);
-  document.getElementById('osrsMain').textContent=G.osrs;
-  document.getElementById('osrsChip').textContent=G.osrs;
-  document.getElementById('osrsBarFill').style.width=G.osrs+'%';
-  document.getElementById('osrsBarFill').style.background=G.osrs>=70?'#ff4466':G.osrs>=45?'#ffaa00':'#00e676';
-  document.getElementById('hmDone').textContent=G.done+'/8';
-  document.getElementById('hmDoneBar').style.width=(G.done/8*100)+'%';
-  document.getElementById('strChip').textContent=G.done;
-  document.getElementById('ptsChip').textContent=G.total;
-  document.getElementById('hmPts').textContent=G.total;
-  setTimeout(()=>loadEx(G.idx+1),700);
-}
-function skipEx(){if(!G.active)return;clearInterval(timI);G.scores[G.idx]=0;G.done++;loadEx(G.idx+1);}
-function togglePause(){G.paused=!G.paused;document.getElementById('pauseBtn').textContent=G.paused?'▶ ต่อ':'⏸ หยุด';}
-function startAll(){clearInterval(timI);clearInterval(simI);G={idx:0,scores:[],paused:false,active:false,time:0,acc:0,done:0,pts:0,osrs:${osrs},total:0};document.getElementById('resultOv').style.display='none';buildList();loadEx(0);}
-function startSingle(i){clearInterval(timI);G.idx=i;loadEx(i);}
-function restartAll(){startAll();}
-function endGame(){
-  G.active=false;clearInterval(timI);clearInterval(simI);
-  const sc=G.scores.filter(s=>s>0);const avg=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length):0;
-  document.getElementById('resBig').textContent=avg+'%';
-  const red=${osrs}-G.osrs;
-  document.getElementById('resGrid').innerHTML=[
-    {v:G.done+'/8',l:'ท่าสำเร็จ',c:'#00e5d1'},
-    {v:'-'+red+'pt',l:'OSRS ลด',c:'#ff6b35'},
-    {v:G.total+'pts',l:'Points',c:'#ffd700'},
-  ].map(s=>'<div class="res-stat"><div class="res-val" style="color:'+s.c+'">'+s.v+'</div><div class="res-lbl">'+s.l+'</div></div>').join('');
-  document.getElementById('resultOv').style.display='flex';
-}
-function updateAcc(v){
-  G.acc=v;const el=document.getElementById('accNum'),lb=document.getElementById('accLbl');
-  el.textContent=v+'%';el.style.color=v>=90?'#00e676':v>=80?'#60a5fa':v>=50?'#ffd700':'#ff4466';
-  lb.textContent=v>=90?'🎉 Perfect!':v>=80?'👍 Great!':v>=50?'⚠️ ปรับท่า':'❌ ปรับปรุง';
-  lb.style.color=el.style.color;
-  document.getElementById('hmAcc').textContent=v+'%';document.getElementById('hmAccBar').style.width=v+'%';
-}
-function calcReba(lm){
-  if(!lm||lm.length<33)return null;
-  const nose=lm[0],ls=lm[11],rs=lm[12],lh=lm[23],rh=lm[24];
-  const nf=Math.abs(nose.x-(ls.x+rs.x)/2)*100,tf=Math.abs((ls.x+rs.x)/2-(lh.x+rh.x)/2)*100,sa=Math.abs(ls.y-rs.y)*100;
-  let s=2;if(tf>10)s++;if(tf>25)s++;if(sa>5)s++;if(nf>10)s++;return Math.min(12,Math.max(1,Math.round(s)));
-}
-function setReba(r){
-  if(!r)return;const c=r<=4?'#34D399':r<=7?'#FBBF24':'#F87171';
-  document.getElementById('rebaVal').textContent=r;document.getElementById('rebaVal').style.color=c;
-  document.getElementById('rebaBadge').style.display='block';
-  document.getElementById('hmReba').textContent=r;document.getElementById('hmReba').style.color=c;
-  document.getElementById('hmRebaBar').style.width=(r/12*100)+'%';document.getElementById('hmRebaBar').style.background=c;
-}
-function onPose(res){
-  if(!res.poseLandmarks)return;
-  const cv=document.getElementById('sk-canvas'),vid=document.getElementById('webcam');
-  cv.width=vid.videoWidth;cv.height=vid.videoHeight;
-  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
-  const r=calcReba(res.poseLandmarks);setReba(r);
-  const sc=r?(r<=4?'#34D399':r<=7?'#FBBF24':'#F87171'):'#667eea';
-  drawConnectors(ctx,res.poseLandmarks,POSE_CONNECTIONS,{color:sc,lineWidth:3});
-  drawLandmarks(ctx,res.poseLandmarks,{color:'#764ba2',lineWidth:2,radius:4});
-  if(G.active&&!G.paused){
-    const ls=res.poseLandmarks[11],rs2=res.poseLandmarks[12],ns=res.poseLandmarks[0];
-    const sw=Math.abs(ls.x-rs2.x),ba=Math.abs((ls.x+rs2.x)/2-(res.poseLandmarks[23].x+res.poseLandmarks[24].x)/2);
-    let v=68;if(sw>.15&&sw<.35)v+=10;if(ba<.05)v+=10;if(ns.visibility>.8)v+=8;
-    v+=Math.random()*8-4;updateAcc(Math.max(0,Math.min(100,Math.round(v))));
+
+// ══ EMOTION CAMERA ══
+let emotionStream = null;
+let emotionInterval = null;
+let timelineData = [];
+let frameCount = 0;
+
+const EMOTIONS = ['Happy','Neutral','Sad','Angry','Stressed','Surprised'];
+const EMOTION_EMOJIS = { Happy:'😊', Neutral:'😌', Sad:'😟', Angry:'😠', Stressed:'😨', Surprised:'😲' };
+
+async function startEmotionCam() {
+  try {
+    const placeholder = document.getElementById('camPlaceholder');
+    placeholder.innerHTML = '<div style="font-size:36px;animation:spin 1s linear infinite;display:inline-block;">⏳</div><div style="color:#aaa;font-size:14px;margin-top:10px;">กำลังขอสิทธิ์กล้อง...</div>';
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' }, audio: false });
+    emotionStream = stream;
+
+    const video = document.getElementById('emotionVideo');
+    video.srcObject = stream;
+    video.style.display = 'block';
+    placeholder.style.display = 'none';
+
+    document.getElementById('faceFrame').style.display = 'block';
+    document.getElementById('scanLine').style.display = 'block';
+    document.getElementById('camLiveBadge').style.display = 'block';
+
+    video.onloadedmetadata = () => {
+      video.play();
+      startEmotionAnalysis();
+      drawFaceOnCanvas();
+    };
+
+  } catch (err) {
+    const placeholder = document.getElementById('camPlaceholder');
+    placeholder.innerHTML = '<div style="font-size:36px;">❌</div><div style="color:#ff4466;font-size:13px;text-align:center;margin:8px 0;">ไม่สามารถเข้าถึงกล้องได้<br><small style="color:#888;">' + err.message + '</small></div><button class="btn-cam" onclick="startEmotionCam()" style="margin-top:8px;">🔄 ลองอีกครั้ง</button>';
   }
 }
-async function startCam(){
-  document.getElementById('camOv').innerHTML='<div class="spin"></div><div style="font-size:.8rem;margin-top:.5rem;opacity:.7">กำลังโหลด AI...</div>';
-  try{
-    poseObj=new Pose({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/pose/'+f});
-    poseObj.setOptions({modelComplexity:1,smoothLandmarks:true,minDetectionConfidence:.5,minTrackingConfidence:.5});
-    poseObj.onResults(onPose);
-    const vid=document.getElementById('webcam');
-    camObj=new Camera(vid,{onFrame:async()=>await poseObj.send({image:vid}),width:640,height:480});
-    await camObj.start();document.getElementById('camOv').style.display='none';if(!G.active)startAll();
-  }catch(e){document.getElementById('camOv').innerHTML='<div style="font-size:1.375rem">❌</div><div style="font-size:.8rem;opacity:.75;margin:.3rem 0">ไม่สามารถเปิดกล้องได้</div><button class="cam-btn" onclick="startCam()">🔄 ลองอีกครั้ง</button><button class="cam-btn demo" onclick="startDemo()">🎮 Demo</button>';}
-}
-function startDemo(){
-  document.getElementById('camOv').style.display='none';setReba(5);if(!G.active)startAll();
-  clearInterval(simI);
-  simI=setInterval(()=>{
-    if(!G.active||G.paused)return;
-    updateAcc(Math.round(62+Math.random()*33));setReba(Math.round(3+Math.random()*6));
-    document.getElementById('hrChip').textContent=Math.round(68+Math.random()*28);
-  },900);
-}
-buildList();
-<\/script></body></html>`;
 
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:12}}>
-      <div style={{background:"linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.07))",border:"1px solid rgba(102,126,234,.3)",borderRadius:12,padding:"11px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:12,fontWeight:"bold",color:"#a5b4fc",marginBottom:3}}>🤖 FlexMind AI — แนะนำท่าตามสภาพร่างกาย</div>
-          <div style={{fontSize:11,color:"#888"}}>{stress>65?"😰 Stressed — แนะนำ: เอียงคอ + ยืดหลัง + แอ่นหลัง":stress>45?"😐 ปานกลาง — แนะนำ: หมุนไหล่ + บิดลำตัว":"😊 ดี — แนะนำท่าครบชุด 8 ท่า Office Syndrome Prevention"}</div>
-        </div>
-        <div style={{display:"flex",gap:8,flexShrink:0}}>
-          <div style={{background:`${osrsColor}15`,border:`1px solid ${osrsColor}40`,borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
-            <div style={{fontSize:16,fontWeight:"bold",color:osrsColor}}>{osrs}</div>
-            <div style={{fontSize:9,color:"#888"}}>OSRS ตอนนี้</div>
-          </div>
-          <div style={{background:"rgba(0,230,118,.12)",border:"1px solid rgba(0,230,118,.3)",borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
-            <div style={{fontSize:14,fontWeight:"bold",color:"#00e676"}}>-37pt</div>
-            <div style={{fontSize:9,color:"#888"}}>ยืดครบ 8 ท่า</div>
-          </div>
-        </div>
-      </div>
-      <div style={{background:C.surf,borderRadius:14,overflow:"hidden",border:"1px solid #2a2a45"}}>
-        <div style={{background:"#0a0a18",padding:"7px 14px",display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #1e1e3a"}}>
-          <div style={{display:"flex",gap:5}}>{["#ff5f57","#febc2e","#28c840"].map((c,i)=><div key={i} style={{width:9,height:9,borderRadius:"50%",background:c}}/>)}</div>
-          <div style={{flex:1,background:"#1a1a2e",borderRadius:6,padding:"3px 10px",fontSize:10,color:"#555",textAlign:"center"}}>🤸 FlexMind AI — Smart Stretch Game</div>
-          <div style={{display:"flex",alignItems:"center",gap:4}}>
-            <div style={{width:6,height:6,borderRadius:"50%",background:C.green,animation:"pulse 1.5s infinite"}}/>
-            <span style={{fontSize:9,color:C.green}}>Live</span>
-          </div>
-        </div>
-        <iframe srcDoc={gameHtml} style={{width:"100%",height:820,border:"none",display:"block"}}
-          allow="camera;microphone" onLoad={()=>setLoaded(true)} title="FlexMind Smart Stretch"
-          sandbox="allow-scripts allow-same-origin"/>
-        {!loaded&&<div style={{position:"absolute",inset:0,background:"rgba(8,8,24,.95)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10}}>
-          <div style={{width:32,height:32,border:"3px solid rgba(102,126,234,.3)",borderTop:"3px solid #667eea",borderRadius:"50%",animation:"spin 1s linear infinite"}}/>
-          <div style={{fontSize:12,color:"#888"}}>กำลังโหลด...</div>
-        </div>}
-      </div>
-    </div>
-  );
+function startEmotionAnalysis() {
+  if (emotionInterval) clearInterval(emotionInterval);
+  emotionInterval = setInterval(() => {
+    analyzeEmotion();
+    frameCount++;
+  }, 800);
 }
 
-export default function App(){
-  const [tab,setTab]=useState("home");
-  const [hr,setHR]=useState(75);
-  const [spo2,setSpo2]=useState(98);
-  const [hrv,setHRV]=useState(62);
-  const [stress,setStress]=useState(45);
-  const [fatigue,setFatigue]=useState(40);
-  const [postureScore,setPosture]=useState(80);
-  const [water,setWater]=useState(3);
-  const [totalStretch,setTotalStretch]=useState(0);
-  const [totalCal,setTotalCal]=useState(0);
-  const [sittingMin,setSittingMin]=useState(28);
-  const [eyeMin,setEyeMin]=useState(45);
-  const [steps,setSteps]=useState(3200);
-  const [emotion,setEmotion]=useState("Neutral");
-  const simRef=useRef(null);
+function analyzeEmotion() {
+  const video = document.getElementById('emotionVideo');
+  if (!video || video.readyState < 2) return;
 
-  const sittingRisk=Math.min(100,sittingMin*1.4);
-  const postureRisk=100-postureScore;
-  const mentalRisk=stress;
-  const eyeRisk=Math.min(100,eyeMin*1.2);
-  const physicalRisk=Math.max(0,100-totalStretch*10-(steps/8000)*40);
-  const sleepRisk=35;
-  const nutritionRisk=Math.max(0,100-water*12);
-  const dimRisks={sitting:sittingRisk,posture:postureRisk,mental:mentalRisk,eye:eyeRisk,physical:physicalRisk,sleep:sleepRisk,nutrition:nutritionRisk};
-  const osrs=Math.round(DIMS.reduce((s,d)=>s+dimRisks[d.id]*d.weight,0));
-  const osrsColor=osrs>=70?C.red:osrs>=45?C.orange:C.green;
-  const osrsLabel=osrs>=70?"HIGH":osrs>=45?"MED":"LOW";
-  const wellness=Math.round(100-stress*0.5-fatigue*0.3);
-  const emotionColors={Neutral:C.lgray,Happy:C.green,Focused:C.teal,Tired:C.orange,Stressed:C.red,Anxious:C.pink};
-  const emotionIcon={Neutral:"😐",Happy:"😊",Focused:"🎯",Tired:"😴",Stressed:"😰",Anxious:"😟"};
+  // Simulate AI emotion detection from video frame brightness/color analysis
+  const canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, 64, 64);
 
-  useEffect(()=>{
-    simRef.current=setInterval(()=>{
-      setHR(h=>Math.max(58,Math.min(120,h+ri(-3,3))));
-      setSpo2(v=>Math.max(95,Math.min(100,v+(Math.random()>.9?-1:0))));
-      setHRV(v=>Math.max(30,Math.min(85,v+rf(-2,2))));
-      setStress(v=>{const nv=Math.max(10,Math.min(88,v+rf(-2,2)));setEmotion(nv>68?(Math.random()>.5?"Stressed":"Anxious"):fatigue>65?"Tired":nv<28?"Happy":"Neutral");return nv;});
-      setFatigue(v=>Math.max(10,Math.min(85,v+rf(-1.5,1.5))));
-      setPosture(v=>Math.max(35,Math.min(98,v+rf(-2,2))));
-      setSittingMin(m=>m+0.025);setEyeMin(m=>m+0.02);setSteps(s=>s+ri(0,2));
-    },1500);
-    return()=>clearInterval(simRef.current);
-  },[fatigue]);
+  let r = 0, g = 0, b = 0;
+  try {
+    const d = ctx.getImageData(20, 15, 24, 30).data;
+    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
+    const px = d.length / 4;
+    r = r / px; g = g / px; b = b / px;
+  } catch(e) { r = 180; g = 150; b = 130; }
 
-  const TABS=[{id:"home",label:"🏠 หน้าหลัก"},{id:"emotion",label:"🧠 Emotion AI"},{id:"workout",label:"🤸 Smart Stretch"},{id:"risk",label:"⚕️ Risk Score"},{id:"results",label:"📊 ผลลัพธ์"}];
+  // Map pixel values to simulated emotion scores
+  const brightness = (r + g + b) / 3;
+  const warmth = r - b;
+  const now = Date.now();
 
-  return (
-    <div style={{background:C.bg,minHeight:"100vh",fontFamily:"Arial,sans-serif",color:C.white,fontSize:13}}>
-      <style>{`@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}} @keyframes spin{to{transform:rotate(360deg)}} .btn{transition:all .15s;cursor:pointer} .btn:hover{opacity:.85;transform:translateY(-1px)} ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#444}`}</style>
+  let happy = 40 + Math.max(0, warmth * 0.3) + Math.random() * 20;
+  let neutral = 10 + Math.random() * 15;
+  let sad = Math.max(0, (150 - brightness) * 0.15) + Math.random() * 8;
+  let angry = Math.max(0, (r - 160) * 0.2) + Math.random() * 5;
+  let stressed = Math.max(0, (130 - brightness) * 0.1) + Math.random() * 8;
 
-      {/* HEADER */}
-      <div style={{background:"linear-gradient(180deg,#1a0510,#0f0f1a)",borderBottom:"1px solid #3a1525",position:"sticky",top:0,zIndex:50}}>
-        <div style={{maxWidth:1060,margin:"0 auto",padding:"0 20px"}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",height:54,flexWrap:"wrap",gap:8}}>
-            <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <svg width={32} height={32} viewBox="0 0 40 40">
-                <defs><linearGradient id="hgX" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#ff4466"/><stop offset="100%" stopColor="#ffaa00"/></linearGradient></defs>
-                <path d="M20 34C20 34 4 24 4 13c0-5 4-9 9-9 3 0 6 2 7 4 1-2 4-4 7-4 5 0 9 4 9 9 0 11-16 21-16 21z" fill="url(#hgX)"/>
-                <polyline points="10,18 13,18 16,12 19,24 22,16 25,20 30,20" fill="none" stroke="white" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <div>
-                <span style={{...gRed,fontSize:18,fontWeight:900}}>Flex</span>
-                <span style={{fontSize:18,fontWeight:900}}>Mind</span>
-                <span style={{...gRed,fontSize:18,fontWeight:900}}> AI</span>
-              </div>
-              <span style={{fontSize:9,color:"#9a4060",marginLeft:4,letterSpacing:1,fontWeight:700}}>OFFICE WELLNESS</span>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-              <div style={{background:"#1a1a2e",border:"1px solid #333",borderRadius:20,padding:"4px 12px",fontSize:12}}>{emotionIcon[emotion]} {emotion}</div>
-              <div style={{background:`${osrsColor}18`,border:`1px solid ${osrsColor}55`,borderRadius:20,padding:"4px 12px",display:"flex",alignItems:"center",gap:5}}>
-                <span style={{fontSize:11,color:osrsColor,fontWeight:"bold"}}>⚕️ OSRS</span>
-                <span style={{fontSize:16,fontWeight:"bold",color:osrsColor}}>{osrs}</span>
-                <span style={{fontSize:9,background:`${osrsColor}30`,color:osrsColor,borderRadius:8,padding:"1px 5px",fontWeight:"bold"}}>{osrsLabel}</span>
-              </div>
-              <div style={{background:"#200010",border:"1px solid #ff446644",borderRadius:20,padding:"4px 12px",display:"flex",alignItems:"center",gap:5}}>
-                <span style={{animation:"beat 1s infinite",display:"inline-block"}}>❤️</span>
-                <span style={{fontSize:16,fontWeight:"bold",color:C.red}}>{Math.round(hr)}</span>
-                <span style={{fontSize:10,color:C.gray}}>bpm</span>
-              </div>
-            </div>
-          </div>
-          <div style={{display:"flex"}}>
-            {TABS.map(t=>(
-              <button key={t.id} className="btn" onClick={()=>setTab(t.id)}
-                style={{background:"none",border:"none",borderBottom:tab===t.id?"2px solid #ff4466":"2px solid transparent",color:tab===t.id?C.white:C.gray,padding:"9px 16px",fontSize:12,fontWeight:tab===t.id?700:400,cursor:"pointer",whiteSpace:"nowrap"}}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+  const total = happy + neutral + sad + angry + stressed;
+  happy = Math.round(happy / total * 100);
+  neutral = Math.round(neutral / total * 100);
+  sad = Math.round(sad / total * 100);
+  angry = Math.round(angry / total * 100);
+  stressed = 100 - happy - neutral - sad - angry;
 
-      <div style={{maxWidth:1060,margin:"0 auto",padding:"20px 20px 60px"}}>
+  updateEmotionUI({ happy, neutral, sad, angry, stressed });
 
-        {tab==="home"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            {/* Hero */}
-            <div style={{background:"linear-gradient(135deg,#1a0510,#1a1030,#0f1020)",border:"1px solid #3a1525",borderRadius:18,padding:"22px 26px",display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",gap:20}}>
-              <div>
-                <div style={{fontSize:11,color:"#9a6070",marginBottom:4}}>FlexMind AI × Office Wellness Platform</div>
-                <div style={{fontSize:24,fontWeight:800,...gRed,marginBottom:8,lineHeight:1.2}}>ร่างกายและจิตใจพร้อมรับมืออออฟฟิศซินโดรมไหม?</div>
-                <div style={{fontSize:12,color:C.lgray,lineHeight:1.8,marginBottom:14}}>
-                  อารมณ์: <span style={{color:emotionColors[emotion],fontWeight:700}}>{emotionIcon[emotion]} {emotion}</span> ·
-                  ความเครียด: <span style={{color:stress>60?C.red:C.orange,fontWeight:700}}>{Math.round(stress)}%</span> ·
-                  ท่าทาง: <span style={{color:C.teal,fontWeight:700}}>{Math.round(postureScore)}%</span>
-                </div>
-                <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                  <button className="btn" onClick={()=>setTab("workout")} style={{background:gBrand,color:"#000",border:"none",borderRadius:10,padding:"11px 28px",fontSize:14,fontWeight:800}}>🤸 เริ่ม Smart Stretch</button>
-                  <button className="btn" onClick={()=>setTab("emotion")} style={{background:"#1e1e3a",color:C.white,border:"1px solid #3a3a5a",borderRadius:10,padding:"11px 18px",fontSize:13}}>🧠 Emotion AI</button>
-                  <button className="btn" onClick={()=>setTab("risk")} style={{background:`${osrsColor}18`,color:osrsColor,border:`1px solid ${osrsColor}44`,borderRadius:10,padding:"11px 18px",fontSize:13,fontWeight:700}}>⚕️ Risk {osrs}</button>
-                </div>
-              </div>
-              <div style={{display:"flex",gap:14,flexShrink:0,alignItems:"center"}}>
-                <div style={{textAlign:"center"}}><Ring val={100-osrs} size={90} color={osrsColor} glow sub="OSRS"/><div style={{fontSize:9,color:osrsColor,fontWeight:"bold",marginTop:2}}>Risk {osrsLabel}</div></div>
-                <div style={{textAlign:"center"}}><Ring val={postureScore} size={90} color={C.teal} sub="Posture"/><div style={{fontSize:9,color:C.gray,marginTop:2}}>ท่าทาง</div></div>
-                <div style={{textAlign:"center"}}><Ring val={wellness} size={90} color={wellness>65?C.green:C.orange} sub="Wellness"/><div style={{fontSize:9,color:C.gray,marginTop:2}}>สุขภาวะ</div></div>
-              </div>
-            </div>
-            {/* KPI */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:10}}>
-              {[
-                {label:"Heart Rate",val:`${Math.round(hr)}`,unit:"bpm",color:C.red,bg:"#200010"},
-                {label:"SpO2",val:`${Math.round(spo2)}`,unit:"%",color:C.teal,bg:"#051514"},
-                {label:"HRV",val:`${Math.round(hrv)}`,unit:"ms",color:C.blue,bg:"#050f20"},
-                {label:"ความเครียด",val:`${Math.round(stress)}`,unit:"%",color:stress<50?C.green:C.red,bg:"#150510"},
-                {label:"ความเหนื่อยล้า",val:`${Math.round(fatigue)}`,unit:"%",color:fatigue<50?C.green:C.orange,bg:"#151000"},
-                {label:"⚕️ OSRS",val:`${osrs}`,unit:"/100",color:osrsColor,bg:`${osrsColor}15`,onClick:()=>setTab("risk")},
-              ].map((m,i)=>(
-                <div key={i} className="btn" onClick={m.onClick} style={{background:m.bg,border:`1px solid ${m.color}25`,borderRadius:12,padding:"14px 12px",cursor:m.onClick?"pointer":"default"}}>
-                  <div style={{fontSize:10,color:C.gray,marginBottom:6,fontWeight:600}}>{m.label}</div>
-                  <div style={{fontSize:22,fontWeight:700,color:m.color,lineHeight:1,whiteSpace:"nowrap"}}>{m.val}<span style={{fontSize:10,color:C.gray,marginLeft:2}}>{m.unit}</span></div>
-                </div>
-              ))}
-            </div>
-            {/* Bottom cards */}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:14}}>
-              <div className="btn" onClick={()=>setTab("risk")} style={{background:`${osrsColor}10`,border:`1px solid ${osrsColor}40`,borderRadius:14,padding:"16px 20px",cursor:"pointer"}}>
-                <div style={{fontSize:11,color:osrsColor,fontWeight:"bold",letterSpacing:1,marginBottom:10}}>⚕️ OSRS — 7 มิติ</div>
-                <div style={{display:"flex",alignItems:"center",gap:14}}>
-                  <Ring val={100-osrs} size={72} color={osrsColor}/>
-                  <div style={{flex:1}}>
-                    {DIMS.slice(0,4).map(d=>(
-                      <div key={d.id} style={{marginBottom:5}}>
-                        <div style={{display:"flex",justifyContent:"space-between",fontSize:10,marginBottom:2}}>
-                          <span style={{color:C.lgray}}>{d.icon} {d.name}</span>
-                          <span style={{color:d.col,fontWeight:"bold"}}>{Math.round(dimRisks[d.id])}</span>
-                        </div>
-                        <Bar val={dimRisks[d.id]} color={d.col} h={3}/>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="btn" onClick={()=>setTab("workout")} style={{background:"linear-gradient(135deg,#1a0510,#1a1030)",border:"1px solid #3a1525",borderRadius:14,padding:20,textAlign:"center",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10}}>
-                <div style={{fontSize:42}}>🤸</div>
-                <div style={{fontSize:16,fontWeight:800,...gRed}}>Smart Stretch</div>
-                <div style={{fontSize:11,color:"#9a6070"}}>8 ท่า · MediaPipe AI · ลด OSRS ได้ทันที</div>
-                <div style={{background:gBrand,color:"#000",borderRadius:20,padding:"5px 18px",fontSize:12,fontWeight:800}}>เริ่มเลย →</div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                <div className="btn" onClick={()=>setWater(w=>Math.min(8,w+1))} style={{background:"#05102a",border:`1px solid ${C.blue}40`,borderRadius:12,padding:"14px 18px",textAlign:"center",cursor:"pointer",flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4}}>
-                  <div style={{fontSize:22}}>💧</div>
-                  <div style={{fontSize:22,fontWeight:700,color:C.blue}}>{water}<span style={{fontSize:11,color:C.gray}}>/8</span></div>
-                  <div style={{fontSize:10,color:C.gray}}>กดเพิ่มแก้วน้ำ</div>
-                  <Bar val={(water/8)*100} color={C.blue}/>
-                </div>
-                <div style={{background:"#0a0520",border:`1px solid ${C.purple}40`,borderRadius:12,padding:"12px 18px",textAlign:"center",flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:3}}>
-                  <div style={{fontSize:20}}>👁️</div>
-                  <div style={{fontSize:13,fontWeight:700,color:C.purple}}>20-20-20</div>
-                  <div style={{fontSize:10,color:C.gray}}>มองไกล 20 ฟุต ทุก 20 นาที</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {tab==="emotion"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            <div style={{background:"linear-gradient(135deg,#1a0a2e,#0f0f1a)",border:"1px solid #c084fc33",borderRadius:14,padding:22}}>
-              <div style={{display:"flex",gap:20,alignItems:"center"}}>
-                <div style={{background:"#050510",borderRadius:12,padding:20,width:185,textAlign:"center",flexShrink:0}}>
-                  <div style={{fontSize:50,marginBottom:8}}>{emotionIcon[emotion]}</div>
-                  <div style={{fontSize:18,fontWeight:"bold",color:emotionColors[emotion]}}>{emotion}</div>
-                  <div style={{fontSize:11,color:C.gray,marginTop:4}}>FACS Detection</div>
-                  <div style={{fontSize:13,color:C.teal,marginTop:4,fontWeight:"bold"}}>{85+ri(0,12)}% Confidence</div>
-                </div>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:15,fontWeight:"bold",color:C.white,marginBottom:12}}>🧠 AI Emotion + Stress Analysis</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
-                    {[{l:"Stress",v:Math.round(stress)+"%",c:stress<50?C.green:C.red},{l:"Fatigue",v:Math.round(fatigue)+"%",c:fatigue<50?C.green:C.orange},{l:"HRV",v:Math.round(hrv)+"ms",c:C.blue},{l:"Wellness",v:wellness,c:wellness>65?C.green:C.orange}].map(({l,v,c})=>(
-                      <div key={l} style={{background:C.surf2,borderRadius:9,padding:12,textAlign:"center"}}>
-                        <div style={{fontSize:20,fontWeight:"bold",color:c}}>{v}</div>
-                        <div style={{fontSize:10,color:C.gray,marginTop:3}}>{l}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{background:`${emotionColors[emotion]}12`,border:`1px solid ${emotionColors[emotion]}44`,borderRadius:10,padding:"10px 14px",marginBottom:10}}>
-                    <div style={{fontSize:11,color:emotionColors[emotion],fontWeight:"bold",marginBottom:3}}>AI แนะนำสำหรับ "{emotion}"</div>
-                    <div style={{fontSize:11,color:C.lgray}}>{emotion==="Stressed"?"→ เอียงคอ + ยืดหลัง + แอ่นหลัง (ลด Cortisol 27%)":emotion==="Tired"?"→ หมุนไหล่ + ยืดแขน + บิดลำตัว":emotion==="Anxious"?"→ ยืดน่อง + ยืดข้อมือ (คลายกังวล)":"→ ท่าครบชุด 8 ท่า Office Syndrome Prevention"}</div>
-                  </div>
-                  <button className="btn" onClick={()=>setTab("workout")} style={{background:gBrand,color:"#000",border:"none",borderRadius:10,padding:"9px 20px",fontSize:12,fontWeight:800}}>🤸 ไปยืดเส้นตามคำแนะนำ →</button>
-                </div>
-              </div>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-              <div style={{background:C.surf,border:"1px solid #2a2a45",borderRadius:14,padding:18}}>
-                <div style={{fontSize:13,fontWeight:"bold",color:C.purple,marginBottom:12}}>📊 7 Health Dimensions</div>
-                {DIMS.map(d=>(
-                  <div key={d.id} style={{marginBottom:8}}>
-                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3}}>
-                      <span style={{color:C.lgray}}>{d.icon} {d.name} <span style={{fontSize:9,opacity:.5}}>×{Math.round(d.weight*100)}%</span></span>
-                      <span style={{color:dimRisks[d.id]>=65?C.red:dimRisks[d.id]>=45?C.orange:C.green,fontWeight:"bold"}}>{Math.round(dimRisks[d.id])}</span>
-                    </div>
-                    <Bar val={dimRisks[d.id]} color={dimRisks[d.id]>=65?C.red:dimRisks[d.id]>=45?C.orange:C.green}/>
-                  </div>
-                ))}
-              </div>
-              <div style={{background:C.surf,border:"1px solid #2a2a45",borderRadius:14,padding:18}}>
-                <div style={{fontSize:13,fontWeight:"bold",color:C.teal,marginBottom:12}}>🎯 AI Recommendations</div>
-                {[
-                  {cond:stress>60,msg:"ความเครียดสูง → ยืดเส้น + พัก",color:C.red},
-                  {cond:fatigue>60,msg:"ล้า → หมุนไหล่ + ยืดหลัง",color:C.orange},
-                  {cond:sittingMin>40,msg:`นั่ง ${Math.round(sittingMin)} นาที → ลุกยืด!`,color:C.orange},
-                  {cond:water<4,msg:"น้ำน้อย → เพิ่มให้ครบ 8 แก้ว",color:C.blue},
-                  {cond:osrs>60,msg:`OSRS ${osrs} → ยืดเส้นลดความเสี่ยง`,color:C.osrs},
-                ].filter(r=>r.cond).map((r,i)=>(
-                  <div key={i} style={{display:"flex",gap:8,padding:"7px 0",borderBottom:"1px solid #1e1e3a"}}>
-                    <div style={{width:6,height:6,borderRadius:"50%",background:r.color,marginTop:4,flexShrink:0}}/>
-                    <span style={{fontSize:11,color:C.lgray}}>{r.msg}</span>
-                  </div>
-                ))}
-                {stress<=60&&fatigue<=60&&sittingMin<=40&&<div style={{fontSize:12,color:C.green,textAlign:"center",padding:"14px 0"}}>✅ สุขภาพดีเยี่ยม!</div>}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {tab==="workout"&&<SmartStretchTab osrs={osrs} osrsColor={osrsColor} stress={stress} emotion={emotion}/>}
-
-        {tab==="risk"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            <div style={{background:"#ffffff",borderRadius:16,padding:"24px 28px",display:"grid",gridTemplateColumns:"auto 1fr",gap:24,alignItems:"center",border:`2px solid ${osrsColor}55`}}>
-              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
-                <div style={{position:"relative",width:180,height:180}}>
-                  <svg width={180} height={180} style={{transform:"rotate(-135deg)"}}>
-                    <circle cx={90} cy={90} r={72} fill="none" stroke="#e0e0f0" strokeWidth={12} strokeDasharray={`${2*Math.PI*72*0.75} ${2*Math.PI*72}`} strokeDashoffset={-(2*Math.PI*72*0.125)} strokeLinecap="round"/>
-                    <circle cx={90} cy={90} r={72} fill="none" stroke={osrsColor} strokeWidth={12} strokeDasharray={`${(osrs/100)*2*Math.PI*72*0.75} ${2*Math.PI*72}`} strokeDashoffset={-(2*Math.PI*72*0.125)} strokeLinecap="round" style={{transition:"stroke-dasharray 1s"}}/>
-                  </svg>
-                  <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-                    <div style={{fontSize:48,fontWeight:900,color:osrsColor,lineHeight:1}}>{osrs}</div>
-                    <div style={{fontSize:12,color:"#666"}}>/ 100</div>
-                    <div style={{fontSize:13,fontWeight:800,color:osrsColor,marginTop:4}}>{osrsLabel} RISK</div>
-                  </div>
-                </div>
-                <div style={{background:osrsColor,color:"#fff",borderRadius:10,padding:"8px 18px",fontSize:12,fontWeight:700}}>
-                  {osrs>=70?"⚠️ ต้องดำเนินการทันที":osrs>=45?"⚡ ควรปรับพฤติกรรม":"✅ รักษาระดับนี้"}
-                </div>
-              </div>
-              <div>
-                <div style={{fontSize:18,fontWeight:800,color:"#1a1a3a",marginBottom:4}}>Office Syndrome Risk Score (OSRS)</div>
-                <div style={{fontSize:12,color:"#555",marginBottom:16}}>คำนวณจาก 7 มิติ × น้ำหนัก — AI Real-time</div>
-                {DIMS.map(d=>{const risk=dimRisks[d.id],rc=risk>=65?C.red:risk>=45?C.orange:C.green;return(
-                  <div key={d.id} style={{marginBottom:10}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                      <div style={{display:"flex",alignItems:"center",gap:6}}><span>{d.icon}</span><span style={{fontSize:13,color:"#1a1a3a",fontWeight:600}}>{d.name}</span><span style={{fontSize:10,background:"#e8e8f0",color:"#666",borderRadius:4,padding:"1px 5px"}}>×{Math.round(d.weight*100)}%</span></div>
-                      <span style={{fontSize:14,fontWeight:800,color:rc}}>{Math.round(risk)}</span>
-                    </div>
-                    <div style={{height:8,background:"#e0e0f0",borderRadius:4,overflow:"hidden"}}><div style={{height:"100%",width:`${Math.min(100,risk)}%`,background:rc,borderRadius:4,transition:"width .6s"}}/></div>
-                  </div>
-                );})}
-              </div>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
-              {[{lo:0,hi:25,l:"ปลอดภัย",c:C.green,d:"พฤติกรรมดีเยี่ยม"},{lo:26,hi:50,l:"เฝ้าระวัง",c:C.teal,d:"ปรับเล็กน้อย"},{lo:51,hi:75,l:"เสี่ยงสูง",c:C.orange,d:"ต้องแก้ไข"},{lo:76,hi:100,l:"วิกฤต",c:C.red,d:"พบแพทย์ทันที"}].map(({lo,hi,l,c,d})=>{
-                const active=osrs>=lo&&osrs<=hi;
-                return(<div key={lo} style={{background:active?"#fff":"#f8f8ff",border:`2px solid ${active?c:"#ddd"}`,borderRadius:12,padding:"16px 14px",textAlign:"center",borderTop:`4px solid ${c}`}}>
-                  {active&&<div style={{fontSize:9,color:c,fontWeight:"bold",marginBottom:4}}>● คุณอยู่นี่</div>}
-                  <div style={{fontSize:18,fontWeight:900,color:c}}>{lo}-{hi}</div>
-                  <div style={{fontSize:13,fontWeight:700,color:"#1a1a3a",marginTop:4}}>{l}</div>
-                  <div style={{fontSize:11,color:"#888",marginTop:3}}>{d}</div>
-                </div>);
-              })}
-            </div>
-          </div>
-        )}
-
-        {tab==="results"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
-              {[{l:"ท่าที่ทำวันนี้",v:totalStretch,u:"ท่า",c:C.teal},{l:"Calories",v:totalCal,u:"kcal",c:C.orange},{l:"OSRS ลดลง",v:totalStretch*4,u:"pt",c:C.osrs},{l:"Wellness",v:wellness,u:"/100",c:wellness>65?C.green:C.orange}].map((s,i)=>(
-                <div key={i} style={{background:C.surf,border:`1px solid ${s.c}30`,borderRadius:12,padding:"18px",textAlign:"center",borderTop:`3px solid ${s.c}`}}>
-                  <div style={{fontSize:28,fontWeight:800,color:s.c}}>{s.v}<span style={{fontSize:11,color:C.gray,marginLeft:2}}>{s.u}</span></div>
-                  <div style={{fontSize:11,color:C.gray,marginTop:5}}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{background:"linear-gradient(135deg,#1a0510,#1a1030)",border:"1px solid #3a1525",borderRadius:14,padding:22,textAlign:"center"}}>
-              <div style={{fontSize:22,fontWeight:800,...gRed,marginBottom:8}}>FlexMind AI — Office Wellness Platform</div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,maxWidth:480,margin:"0 auto 16px"}}>
-                {[{v:"0",l:"แบบฟอร์มที่ต้องกรอก",c:C.green},{v:"7",l:"มิติวัดอัตโนมัติ",c:C.teal},{v:"Real-time",l:"ทุก 1.5 วินาที",c:C.purple}].map((s,i)=>(
-                  <div key={i} style={{background:"rgba(255,255,255,.06)",borderRadius:10,padding:12}}>
-                    <div style={{fontSize:18,fontWeight:"bold",color:s.c}}>{s.v}</div>
-                    <div style={{fontSize:10,color:C.gray,marginTop:3}}>{s.l}</div>
-                  </div>
-                ))}
-              </div>
-              <button className="btn" onClick={()=>setTab("workout")} style={{background:gBrand,color:"#000",border:"none",borderRadius:12,padding:"12px 40px",fontSize:14,fontWeight:800}}>🤸 ยืดต่อเลย!</button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  timelineData.push({ ts: now, happy, stressed });
+  if (timelineData.length > 60) timelineData.shift();
+  drawEmotionTimeline();
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+function updateEmotionUI(e) {
+  const keys = ['happy','neutral','sad','angry','stressed'];
+  keys.forEach(k => {
+    const bar = document.getElementById('emo-' + k);
+    const pct = document.getElementById('pct-' + k);
+    if (bar) bar.style.width = e[k] + '%';
+    if (pct) pct.textContent = e[k] + '%';
+  });
+
+  // Determine dominant emotion
+  const dominant = keys.reduce((a, b) => e[a] > e[b] ? a : b);
+  const emojis = { happy:'😊', neutral:'😌', sad:'😟', angry:'😠', stressed:'😨' };
+  const labels = { happy:'Happy', neutral:'Neutral', sad:'Sad', angry:'Angry', stressed:'Stressed' };
+
+  document.getElementById('liveEmotionText').textContent = emojis[dominant] + ' ' + labels[dominant] + ' — ' + e[dominant] + '%';
+  document.getElementById('mainEmotion').textContent = emojis[dominant];
+  document.getElementById('navMood').textContent = emojis[dominant] + ' ' + labels[dominant];
+
+  const stressVal = e.stressed + Math.round(e.sad * 0.5);
+  document.getElementById('stressScore').textContent = stressVal + '%';
+  document.getElementById('stressCum').textContent = stressVal + '%';
+  document.getElementById('stressCumBar').style.width = stressVal + '%';
+
+  if (stressVal < 20) {
+    document.getElementById('stressLevel').textContent = 'Low';
+    document.getElementById('stressLevel').style.color = '#00c851';
+  } else if (stressVal < 45) {
+    document.getElementById('stressLevel').textContent = 'Medium';
+    document.getElementById('stressLevel').style.color = '#ffd700';
+  } else {
+    document.getElementById('stressLevel').textContent = 'High';
+    document.getElementById('stressLevel').style.color = '#ff4466';
+  }
+
+  const valence = ((e.happy - e.sad - e.angry - e.stressed) / 100).toFixed(2);
+  document.getElementById('valenceScore').textContent = (valence >= 0 ? '+' : '') + valence;
+  document.getElementById('valenceScore').style.color = valence >= 0 ? '#00c851' : '#ff4466';
+}
+
+function drawFaceOnCanvas() {
+  const video = document.getElementById('emotionVideo');
+  const canvas = document.getElementById('emotionCanvas2');
+  if (!video || !canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  // Draw subtle landmark dots animation
+  function loop() {
+    if (!emotionStream) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = Date.now() / 1000;
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const fw = 130, fh = 160;
+
+    // Face mesh dots (simulated landmarks)
+    const landmarks = [
+      [cx, cy - fh*0.42], // forehead
+      [cx - fw*0.42, cy - fh*0.1], // left cheek
+      [cx + fw*0.42, cy - fh*0.1], // right cheek
+      [cx - fw*0.22, cy - fh*0.18], // left eye outer
+      [cx + fw*0.22, cy - fh*0.18], // right eye outer
+      [cx - fw*0.22, cy - fh*0.22], // left eye inner
+      [cx + fw*0.22, cy - fh*0.22], // right eye inner
+      [cx, cy - fh*0.05], // nose tip
+      [cx - fw*0.12, cy + fh*0.1], // mouth left
+      [cx + fw*0.12, cy + fh*0.1], // mouth right
+      [cx, cy + fh*0.05], // mouth center
+      [cx - fw*0.3, cy + fh*0.05], // jaw left
+      [cx + fw*0.3, cy + fh*0.05], // jaw right
+      [cx, cy + fh*0.28], // chin
+    ];
+
+    landmarks.forEach((pt, i) => {
+      const pulse = 0.5 + 0.5 * Math.sin(t * 2 + i * 0.5);
+      ctx.beginPath();
+      ctx.arc(pt[0], pt[1], 3 + pulse, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,229,209,' + (0.5 + pulse * 0.4) + ')';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(pt[0], pt[1], 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#00e5d1';
+      ctx.fill();
+    });
+
+    // Connection lines
+    const connections = [[0,5],[0,6],[3,5],[4,6],[7,10],[8,10],[9,10],[11,13],[12,13],[13,3],[13,4]];
+    ctx.strokeStyle = 'rgba(102,126,234,0.25)';
+    ctx.lineWidth = 1;
+    connections.forEach(([a,b]) => {
+      ctx.beginPath();
+      ctx.moveTo(landmarks[a][0], landmarks[a][1]);
+      ctx.lineTo(landmarks[b][0], landmarks[b][1]);
+      ctx.stroke();
+    });
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ══ EMOTION TIMELINE ══
+function drawEmotionTimeline() {
+  const canvas = document.getElementById('emotionTimeline');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 700, H = 126;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  const pL = 8, pR = 8, pT = 12, pB = 24;
+  const cW = W - pL - pR, cH = H - pT - pB;
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  [0,25,50,75,100].forEach(v => {
+    const y = pT + cH - (v/100)*cH;
+    ctx.beginPath(); ctx.moveTo(pL, y); ctx.lineTo(pL+cW, y); ctx.stroke();
+    ctx.fillStyle = '#444'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(v+'%', pL-2, y+3);
+  });
+
+  const useData = timelineData.length > 1 ? timelineData : Array.from({length:10},(_,i)=>({ts:Date.now()-i*5000,happy:60+Math.random()*20,stressed:10+Math.random()*15})).reverse();
+
+  const drawLine = (getData, color, fillColor) => {
+    const pts = useData.map((d,i) => ({ x: pL + (i/(useData.length-1))*cW, y: pT + cH - (getData(d)/100)*cH }));
+    const grd = ctx.createLinearGradient(0,pT,0,pT+cH);
+    grd.addColorStop(0, fillColor); grd.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pT+cH);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[pts.length-1].x, pT+cH); ctx.closePath();
+    ctx.fillStyle = grd; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    pts.forEach((p,i) => { if(i>0){const pr=pts[i-1];const cx=(pr.x+p.x)/2;ctx.bezierCurveTo(cx,pr.y,cx,p.y,p.x,p.y);} });
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+    pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fillStyle=color; ctx.fill(); });
+  };
+
+  drawLine(d => d.happy, '#ffd700', 'rgba(255,215,0,0.15)');
+  drawLine(d => d.stressed, '#ff4466', 'rgba(255,68,102,0.08)');
+
+  ctx.fillStyle = '#ffd700'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('— Happy', pL+4, pT+10);
+  ctx.fillStyle = '#ff4466'; ctx.fillText('— Stress', pL+68, pT+10);
+}
+
+// ══ WEEKLY CHART ══
+function drawWeeklyChart() {
+  const canvas = document.getElementById('weeklyCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 700, H = 146;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+  const weeks = ['สัปดาห์ 1','สัปดาห์ 2','สัปดาห์ 3','สัปดาห์ 4'];
+  const data = [72,81,85,87];
+  const pL=30,pR=10,pT=15,pB=28;
+  const cW=W-pL-pR,cH=H-pT-pB;
+  const bW=(cW/data.length)*0.55,gap=(cW/data.length);
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  [0,25,50,75,100].forEach(v=>{const y=pT+cH-(v/100)*cH;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();ctx.fillStyle='#555';ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText(v+'%',pL-3,y+3);});
+  data.forEach((v,i)=>{const x=pL+i*gap+(gap-bW)/2;const bH=(v/100)*cH;const y=pT+cH-bH;const grd=ctx.createLinearGradient(0,y,0,pT+cH);grd.addColorStop(0,'#667eea');grd.addColorStop(1,'#764ba2');ctx.fillStyle=grd;const r=4;ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+bW-r,y);ctx.quadraticCurveTo(x+bW,y,x+bW,y+r);ctx.lineTo(x+bW,y+bH);ctx.lineTo(x,y+bH);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(v+'%',x+bW/2,y-5);ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText(weeks[i],x+bW/2,H-5);});
+}
+
+// ══ STREAK CALENDAR ══
+function buildStreakCal() {
+  const cal = document.getElementById('streakCal');
+  if (!cal) return;
+  cal.innerHTML = '';
+  const days = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+  const pattern = [1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,0,0];
+  pattern.forEach((done,i) => {
+    const d = document.createElement('div');
+    const dn = days[i%7];
+    if (i >= 21) { d.className='streak-day streak-active'; d.textContent=dn; }
+    else if (done) { d.className='streak-day streak-done'; d.textContent=dn; }
+    else { d.className='streak-day streak-empty'; d.textContent=dn; }
+    cal.appendChild(d);
+  });
+}
+
+// ══ INIT ══
+window.addEventListener('load', () => {
+  buildStreakCal();
+  // Auto-animate emotion bars even without camera
+  setInterval(() => {
+    if (!emotionStream) {
+      const base = { happy:65+Math.random()*18, neutral:10+Math.random()*10, sad:2+Math.random()*5, angry:1+Math.random()*3, stressed:2+Math.random()*7 };
+      const total = Object.values(base).reduce((a,b)=>a+b,0);
+      const norm = {};
+      Object.keys(base).forEach(k => norm[k]=Math.round(base[k]/total*100));
+      ['happy','neutral','sad','angry','stressed'].forEach(k=>{
+        const bar=document.getElementById('emo-'+k);
+        const pct=document.getElementById('pct-'+k);
+        if(bar) bar.style.width=norm[k]+'%';
+        if(pct) pct.textContent=norm[k]+'%';
+      });
+    }
+  }, 2500);
+});
 </script>
 </body>
 </html>
