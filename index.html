@@ -4,143 +4,213 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FlexMind AI - Office Wellness</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; overflow-x: hidden; }
-.navbar { background: #111122; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222244; position: sticky; top: 0; z-index: 100; }
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-text { font-size: 20px; font-weight: 800; }
-.logo-text .brand { color: #ff6b35; }
-.logo-text .ai { color: #00e5d1; }
-.logo-sub { color: #888; font-size: 11px; letter-spacing: 2px; margin-left: 8px; }
-.nav-right { display: flex; align-items: center; gap: 12px; }
-.badge-mood { background: #2a2a3a; border-radius: 20px; padding: 6px 16px; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-.badge-osrs { background: #1a2a1a; border: 1px solid #00c851; border-radius: 20px; padding: 6px 16px; font-size: 14px; display: flex; align-items: center; gap: 6px; color: #00c851; }
-.badge-osrs .low { background: #00c851; color: #000; border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 700; margin-left: 4px; }
-.badge-hr { background: #2a1a1a; border: 1px solid #ff4466; border-radius: 20px; padding: 6px 16px; font-size: 14px; display: flex; align-items: center; gap: 6px; color: #ff4466; }
-.tabs { background: #111122; padding: 0 24px; display: flex; border-bottom: 1px solid #1a1a2e; position: sticky; top: 57px; z-index: 99; }
-.tab { padding: 14px 20px; font-size: 14px; cursor: pointer; color: #888; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
-.tab.active { color: #fff; border-bottom: 2px solid #ff6b35; }
-.tab:hover { color: #ccc; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-.main { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
-.hero-card { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a35 100%); border: 1px solid #2a2a4a; border-radius: 16px; padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; }
-.hero-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 50%, rgba(100,0,200,0.15) 0%, transparent 60%); }
-.hero-left { position: relative; z-index: 1; }
-.hero-sub { color: #888; font-size: 12px; margin-bottom: 8px; }
-.hero-title { font-size: 26px; font-weight: 800; color: #ff6b35; margin-bottom: 12px; line-height: 1.3; }
-.hero-meta { font-size: 14px; color: #aaa; margin-bottom: 20px; }
-.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn-stretch { background: linear-gradient(135deg, #ff6b35, #ff4466); border: none; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
-.btn-emotion { background: transparent; border: 1px solid #555; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 15px; cursor: pointer; }
-.btn-risk { background: transparent; border: 1px solid #00c851; color: #00c851; padding: 12px 24px; border-radius: 10px; font-size: 15px; cursor: pointer; }
-.hero-right { display: flex; gap: 28px; align-items: center; position: relative; z-index: 1; }
-.gauge-wrap { text-align: center; }
-.gauge-circle { position: relative; width: 100px; height: 100px; }
-.gauge-circle svg { width: 100px; height: 100px; transform: rotate(-90deg); }
-.gauge-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-.gauge-val .num { font-size: 22px; font-weight: 800; }
-.gauge-val .lbl { font-size: 10px; color: #888; }
-.gauge-label { font-size: 12px; color: #888; margin-top: 4px; }
-.gauge-status { font-size: 11px; font-weight: 700; margin-top: 2px; }
-.metrics-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-.metric-card { background: #111122; border: 1px solid #1e1e35; border-radius: 12px; padding: 16px 18px; }
-.metric-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-.metric-val { font-size: 28px; font-weight: 800; display: flex; align-items: baseline; gap: 4px; }
-.metric-unit { font-size: 14px; font-weight: 400; }
-.c-red{color:#ff4466} .c-green{color:#00c851} .c-blue{color:#00bfff} .c-yellow{color:#ffd700} .c-orange{color:#ff8c00} .c-teal{color:#00e5d1} .c-purple{color:#9b59b6}
-.bottom-row { display: grid; grid-template-columns: 1fr 1.2fr 0.7fr; gap: 16px; }
-.osrs-card { background: #0f1a1f; border: 1px solid #00e5d1; border-radius: 14px; padding: 20px; }
-.osrs-header { color: #00e5d1; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-.osrs-body { display: flex; gap: 20px; align-items: center; }
-.osrs-gauge { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
-.osrs-gauge svg { width: 90px; height: 90px; transform: rotate(-90deg); }
-.osrs-gauge-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: 800; color: #00c851; }
-.osrs-bars { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-.bar-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-.bar-label { color: #bbb; width: 80px; flex-shrink: 0; }
-.bar-bg { flex: 1; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; }
-.bar-num { width: 24px; text-align: right; font-weight: 700; font-size: 12px; }
-.right-col { display: flex; flex-direction: column; gap: 12px; }
-.mini-card { background: #111122; border: 1px solid #1e1e35; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex: 1; }
-.mini-val { font-size: 22px; font-weight: 800; color: #00bfff; }
-.mini-val span { font-size: 14px; color: #888; }
-.mini-label { font-size: 12px; color: #888; margin-top: 4px; }
-.mini-rule { font-size: 18px; font-weight: 800; color: #9b59b6; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0d0a1a;
+  min-height:100vh;
+  font-family:'Prompt','Segoe UI',sans-serif;
+  color:#fff;
+  overflow-x:hidden;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  background: #130e22;
+  padding: 0 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,110,180,0.18);
+}
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-text { font-size:22px; font-weight:900; }
+.logo-text .brand { color:#ff6eb4; }
+.logo-text .ai { color:#c96eff; }
+.logo-sub { color:rgba(255,255,255,0.4); font-size:11px; letter-spacing:2.5px; font-weight:700; margin-left:8px; }
+.nav-right { display:flex; align-items:center; gap:10px; }
+.badge-mood { background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.18); border-radius:24px; padding:6px 18px; font-size:14px; font-weight:800; color:#fff; }
+.badge-osrs { background:rgba(0,220,100,0.1); border:1.5px solid #00dc64; border-radius:24px; padding:6px 18px; font-size:14px; font-weight:800; color:#00dc64; display:flex; align-items:center; gap:6px; }
+.badge-osrs .low { background:#00dc64; color:#001a08; border-radius:10px; padding:1px 8px; font-size:11px; font-weight:900; }
+.badge-hr { background:rgba(255,80,120,0.1); border:1.5px solid #ff5078; border-radius:24px; padding:6px 18px; font-size:14px; font-weight:800; color:#ff5078; }
+
+/* ── TABS ── */
+.tabs {
+  background: #130e22;
+  padding: 0 28px;
+  display: flex;
+  border-bottom: 1.5px solid rgba(255,110,180,0.15);
+  position: sticky;
+  top: 64px;
+  z-index: 99;
+}
+.tab { padding:15px 22px; font-size:15px; font-weight:800; cursor:pointer; color:rgba(255,255,255,0.4); border-bottom:3px solid transparent; transition:all 0.2s; white-space:nowrap; }
+.tab.active { color:#ff6eb4; border-bottom:3px solid #ff6eb4; }
+.tab:hover { color:rgba(255,110,180,0.8); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ── HOME MAIN ── */
+.main { padding:22px 28px; display:flex; flex-direction:column; gap:18px; }
+
+/* ── HERO CARD ── */
+.hero-card {
+  background: linear-gradient(135deg, #1a1030 0%, #1e1240 50%, #160e35 100%);
+  border: 1.5px solid rgba(201,110,255,0.25);
+  border-radius: 20px;
+  padding: 30px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 40px rgba(100,0,180,0.25);
+  position: relative;
+  overflow: hidden;
+}
+.hero-card::before {
+  content:'';
+  position:absolute; top:-60px; right:-40px;
+  width:260px; height:260px;
+  background:radial-gradient(circle, rgba(201,110,255,0.15) 0%, transparent 70%);
+  border-radius:50%;
+}
+.hero-card::after {
+  content:'';
+  position:absolute; bottom:-40px; left:20%;
+  width:180px; height:180px;
+  background:radial-gradient(circle, rgba(255,110,180,0.1) 0%, transparent 70%);
+  border-radius:50%;
+}
+.hero-left { position:relative; z-index:1; max-width:600px; }
+.hero-sub { color:rgba(255,255,255,0.4); font-size:13px; font-weight:600; margin-bottom:10px; }
+.hero-title { font-size:28px; font-weight:900; color:#ff6eb4; margin-bottom:14px; line-height:1.35; }
+.hero-meta { font-size:15px; color:rgba(255,255,255,0.6); margin-bottom:22px; font-weight:600; }
+.hero-meta .happy { color:#ffd700; font-weight:900; }
+.hero-meta .stress { color:#00dc64; font-weight:900; }
+.hero-meta .posture { color:#c96eff; font-weight:900; }
+.hero-btns { display:flex; gap:12px; flex-wrap:wrap; }
+.btn-stretch { background:linear-gradient(135deg,#ff6eb4,#e0006a); border:none; color:#fff; padding:13px 26px; border-radius:14px; font-size:16px; font-weight:900; cursor:pointer; font-family:'Prompt',sans-serif; box-shadow:0 4px 20px rgba(224,0,106,0.4); transition:all 0.2s; }
+.btn-stretch:hover { transform:translateY(-2px); }
+.btn-emotion { background:rgba(201,110,255,0.12); border:2px solid #c96eff; color:#c96eff; padding:13px 26px; border-radius:14px; font-size:16px; font-weight:900; cursor:pointer; font-family:'Prompt',sans-serif; transition:all 0.2s; }
+.btn-emotion:hover { background:rgba(201,110,255,0.22); }
+.btn-risk { background:rgba(0,220,100,0.1); border:2px solid #00dc64; color:#00dc64; padding:13px 26px; border-radius:14px; font-size:16px; font-weight:900; cursor:pointer; font-family:'Prompt',sans-serif; transition:all 0.2s; }
+.btn-risk:hover { background:rgba(0,220,100,0.2); }
+
+/* ── GAUGES ── */
+.hero-right { display:flex; gap:28px; align-items:center; position:relative; z-index:1; }
+.gauge-wrap { text-align:center; }
+.gauge-circle { position:relative; width:108px; height:108px; }
+.gauge-circle svg { width:108px; height:108px; transform:rotate(-90deg); }
+.gauge-val { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
+.gauge-val .num { font-size:26px; font-weight:900; }
+.gauge-val .lbl { font-size:10px; color:rgba(255,255,255,0.4); font-weight:700; }
+.gauge-label { font-size:12px; color:rgba(255,255,255,0.4); margin-top:5px; font-weight:700; }
+.gauge-status { font-size:12px; font-weight:900; margin-top:2px; }
+
+/* ── METRIC CARDS ── */
+.metrics-row { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; }
+.metric-card { background:#130e22; border:1.5px solid rgba(255,110,180,0.12); border-radius:16px; padding:18px 20px; }
+.metric-label { font-size:13px; color:rgba(255,255,255,0.4); font-weight:700; margin-bottom:7px; }
+.metric-val { font-size:32px; font-weight:900; display:flex; align-items:baseline; gap:4px; }
+.metric-unit { font-size:16px; font-weight:700; }
+.c-red{color:#ff4466} .c-green{color:#00dc64} .c-blue{color:#4d9fff} .c-yellow{color:#ffd700} .c-orange{color:#ff8c00} .c-teal{color:#00e5b0} .c-purple{color:#c96eff}
+
+/* ── BOTTOM ROW ── */
+.bottom-row { display:grid; grid-template-columns:1fr 1.2fr 0.7fr; gap:18px; }
+.osrs-card { background:#130e22; border:1.5px solid rgba(0,220,100,0.3); border-radius:18px; padding:22px; }
+.osrs-header { color:#00dc64; font-size:16px; font-weight:900; margin-bottom:18px; }
+.osrs-body { display:flex; gap:20px; align-items:center; }
+.osrs-gauge { position:relative; width:96px; height:96px; flex-shrink:0; }
+.osrs-gauge svg { width:96px; height:96px; transform:rotate(-90deg); }
+.osrs-gauge-val { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:30px; font-weight:900; color:#00dc64; }
+.osrs-bars { flex:1; display:flex; flex-direction:column; gap:11px; }
+.bar-row { display:flex; align-items:center; gap:8px; }
+.bar-label { color:rgba(255,255,255,0.6); width:90px; flex-shrink:0; font-size:13px; font-weight:700; }
+.bar-bg { flex:1; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; }
+.bar-num { width:26px; text-align:right; font-weight:900; font-size:13px; }
+.right-col { display:flex; flex-direction:column; gap:14px; }
+.mini-card { background:#130e22; border:1.5px solid rgba(201,110,255,0.2); border-radius:16px; padding:18px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; flex:1; }
+.mini-val { font-size:26px; font-weight:900; color:#4d9fff; }
+.mini-val span { font-size:16px; color:rgba(255,255,255,0.4); font-weight:700; }
+.mini-label { font-size:13px; color:rgba(255,255,255,0.4); margin-top:4px; font-weight:700; }
+.mini-rule { font-size:20px; font-weight:900; color:#c96eff; }
 
 /* ── EMOTION AI ── */
-.emotion-main { padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.emotion-card { background: #111122; border: 1px solid #1e1e35; border-radius: 14px; padding: 20px; }
-.emotion-card h3 { font-size: 14px; color: #888; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
-.cam-box { background: #050510; border-radius: 12px; height: 300px; position: relative; overflow: hidden; border: 1px solid #1e1e35; display: flex; align-items: center; justify-content: center; }
-#emotionVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: none; border-radius: 12px; }
-#emotionCanvas2 { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.cam-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 2; }
-.cam-placeholder-icon { font-size: 52px; }
-.cam-placeholder-text { color: #888; font-size: 14px; text-align: center; line-height: 1.6; }
-.btn-cam { background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: #fff; padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-.btn-cam:hover { opacity: 0.9; transform: translateY(-1px); }
-.cam-overlay-live { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,229,209,0.15); border: 1px solid #00e5d1; border-radius: 20px; padding: 5px 18px; font-size: 13px; color: #00e5d1; font-weight: 700; z-index: 5; white-space: nowrap; display: none; }
-.cam-live-dot { display: inline-block; width: 7px; height: 7px; background: #00c851; border-radius: 50%; margin-right: 5px; animation: blink 1.2s ease-in-out infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-.face-frame-live { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-55%); width: 140px; height: 170px; border: 2px solid #00e5d1; border-radius: 14px; z-index: 4; pointer-events: none; display: none; animation: framePulse 2s ease-in-out infinite; }
-@keyframes framePulse { 0%,100%{border-color:#00e5d1} 50%{border-color:#667eea} }
-.scan-line { position: absolute; left: 8px; right: 8px; height: 2px; background: linear-gradient(90deg,transparent,#00e5d1,transparent); animation: scanMove 2.5s linear infinite; z-index: 4; display: none; }
-@keyframes scanMove { 0%{top:20%} 100%{top:80%} }
-.emotion-bars { display: flex; flex-direction: column; gap: 12px; }
-.emo-row { display: flex; align-items: center; gap: 10px; }
-.emo-label { width: 80px; font-size: 13px; color: #ccc; flex-shrink: 0; }
-.emo-track { flex: 1; height: 9px; background: #1a1a2e; border-radius: 4px; overflow: hidden; }
-.emo-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
-.emo-pct { width: 36px; text-align: right; font-size: 13px; font-weight: 700; }
-.stress-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 18px; }
-.stress-stat { background: #0a0a18; border-radius: 10px; padding: 14px; text-align: center; border: 1px solid #1e1e35; }
-.stress-val { font-size: 22px; font-weight: 800; }
-.stress-lbl { font-size: 11px; color: #888; margin-top: 4px; }
-.emotion-timeline { grid-column: 1 / -1; }
+.emotion-main { padding:22px 28px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.emotion-card { background:#130e22; border:1.5px solid rgba(255,110,180,0.15); border-radius:18px; padding:22px; }
+.emotion-card h3 { font-size:15px; color:rgba(255,255,255,0.5); margin-bottom:14px; font-weight:800; }
+.accuracy-badge { display:inline-block; background:rgba(0,220,100,0.1); border:1.5px solid #00dc64; border-radius:20px; padding:4px 14px; font-size:12px; font-weight:800; color:#00dc64; margin-bottom:14px; }
+.cam-box { background:#0a0714; border-radius:14px; height:320px; position:relative; overflow:hidden; border:1.5px solid rgba(201,110,255,0.2); display:flex; align-items:center; justify-content:center; }
+#emotionVideo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); display:none; border-radius:14px; }
+#faceCanvas { position:absolute; inset:0; width:100%; height:100%; transform:scaleX(-1); z-index:3; pointer-events:none; }
+.cam-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:2; }
+.cam-placeholder-icon { font-size:52px; }
+.cam-placeholder-text { color:rgba(255,255,255,0.45); font-size:14px; font-weight:700; text-align:center; line-height:1.7; }
+.btn-cam { background:linear-gradient(135deg,#ff6eb4,#c96eff); border:none; color:#fff; padding:13px 30px; border-radius:14px; font-size:15px; font-weight:900; cursor:pointer; font-family:'Prompt',sans-serif; box-shadow:0 4px 20px rgba(201,110,255,0.35); transition:all 0.2s; }
+.btn-cam:hover { transform:translateY(-2px); }
+.cam-overlay-live { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); background:rgba(255,110,180,0.15); border:1.5px solid #ff6eb4; border-radius:24px; padding:6px 22px; font-size:14px; color:#ff6eb4; font-weight:900; z-index:6; white-space:nowrap; display:none; }
+.cam-live-dot { display:inline-block; width:7px; height:7px; background:#00dc64; border-radius:50%; margin-right:5px; animation:blink 1.2s ease-in-out infinite; }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.model-loading { position:absolute; inset:0; background:rgba(13,10,26,0.95); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; z-index:10; border-radius:14px; }
+.model-spinner { width:48px; height:48px; border:5px solid rgba(201,110,255,0.2); border-top-color:#c96eff; border-radius:50%; animation:spin 1s linear infinite; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.emotion-bars { display:flex; flex-direction:column; gap:12px; }
+.emo-row { display:flex; align-items:center; gap:10px; }
+.emo-label { width:100px; font-size:14px; color:rgba(255,255,255,0.75); flex-shrink:0; font-weight:800; }
+.emo-track { flex:1; height:10px; background:rgba(255,255,255,0.06); border-radius:5px; overflow:hidden; }
+.emo-fill { height:100%; border-radius:5px; transition:width 0.6s ease; }
+.emo-pct { width:42px; text-align:right; font-size:15px; font-weight:900; }
+.stress-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:18px; }
+.stress-stat { background:rgba(255,255,255,0.04); border-radius:12px; padding:14px; text-align:center; border:1.5px solid rgba(255,110,180,0.12); }
+.stress-val { font-size:22px; font-weight:900; }
+.stress-lbl { font-size:12px; color:rgba(255,255,255,0.35); margin-top:4px; font-weight:700; }
+.emotion-timeline { grid-column:1 / -1; }
 
 /* ── SMART STRETCH ── */
-.stretch-tab-wrap { width: 100%; height: calc(100vh - 113px); position: relative; background: #0a0a18; }
-.stretch-iframe { width: 100%; height: 100%; border: none; display: block; }
-.stretch-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0a0a18; z-index: 10; gap: 16px; }
-.stretch-spinner { width: 52px; height: 52px; border: 4px solid rgba(102,126,234,0.2); border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
+.stretch-tab-wrap { width:100%; height:calc(100vh - 118px); position:relative; background:#0d0a1a; }
+.stretch-iframe { width:100%; height:100%; border:none; display:block; }
+.stretch-loading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0d0a1a; z-index:10; gap:16px; }
+.stretch-spinner { width:54px; height:54px; border:5px solid rgba(201,110,255,0.15); border-top-color:#c96eff; border-radius:50%; animation:spin 1s linear infinite; }
 
-/* ── RISK SCORE ── */
-.risk-main { padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.risk-card { background: #111122; border: 1px solid #1e1e35; border-radius: 14px; padding: 20px; }
-.risk-card.full { grid-column: 1 / -1; }
-.risk-card h3 { font-size: 14px; color: #888; margin-bottom: 16px; }
-.dim-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.dim-label { width: 120px; font-size: 12px; color: #ccc; flex-shrink: 0; }
-.dim-track { flex: 1; height: 8px; background: #1a1a2e; border-radius: 4px; overflow: hidden; }
-.dim-fill { height: 100%; border-radius: 4px; }
-.dim-num { width: 28px; text-align: right; font-weight: 700; font-size: 12px; }
-.rec-item { display: flex; gap: 10px; padding: 12px; background: #0a0a18; border-radius: 10px; border-left: 3px solid #667eea; margin-bottom: 10px; }
-.rec-icon { font-size: 18px; flex-shrink: 0; }
-.rec-text { font-size: 12px; color: #ccc; line-height: 1.6; }
+/* ── RISK ── */
+.risk-main { padding:22px 28px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.risk-card { background:#130e22; border:1.5px solid rgba(255,110,180,0.12); border-radius:18px; padding:22px; }
+.risk-card.full { grid-column:1 / -1; }
+.risk-card h3 { font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:16px; font-weight:800; }
+.dim-row { display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+.dim-label { width:130px; font-size:13px; color:rgba(255,255,255,0.65); flex-shrink:0; font-weight:700; }
+.dim-track { flex:1; height:9px; background:rgba(255,255,255,0.06); border-radius:5px; overflow:hidden; }
+.dim-fill { height:100%; border-radius:5px; }
+.dim-num { width:28px; text-align:right; font-weight:900; font-size:14px; }
+.rec-item { display:flex; gap:10px; padding:13px; background:rgba(255,110,180,0.05); border-radius:12px; border-left:3px solid #ff6eb4; margin-bottom:10px; }
+.rec-icon { font-size:20px; flex-shrink:0; }
+.rec-text { font-size:13px; color:rgba(255,255,255,0.65); line-height:1.65; font-weight:600; }
 
 /* ── RESULTS ── */
-.results-main { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
-.results-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
-.result-stat { background: #111122; border: 1px solid #1e1e35; border-radius: 12px; padding: 18px; text-align: center; }
-.result-stat-val { font-size: 32px; font-weight: 800; }
-.result-stat-lbl { font-size: 12px; color: #888; margin-top: 4px; }
-.chart-card { background: #111122; border: 1px solid #1e1e35; border-radius: 14px; padding: 20px; }
-.chart-card h3 { font-size: 14px; color: #888; margin-bottom: 16px; }
-.results-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.pose-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 12px; }
-.pose-name { width: 100px; color: #ccc; flex-shrink: 0; font-size: 11px; }
-.pose-track { flex: 1; height: 8px; background: #1a1a2e; border-radius: 4px; overflow: hidden; }
-.pose-fill { height: 100%; border-radius: 4px; }
-.pose-pct { width: 36px; text-align: right; font-weight: 700; font-size: 12px; }
-.streak-row { display: flex; gap: 5px; flex-wrap: wrap; }
-.streak-day { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
-.streak-active { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
-.streak-done { background: #1a2a3a; color: #00c851; border: 1px solid #00c851; }
-.streak-empty { background: #1a1a2e; color: #444; }
+.results-main { padding:22px 28px; display:flex; flex-direction:column; gap:18px; }
+.results-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.result-stat { background:#130e22; border:1.5px solid rgba(255,110,180,0.12); border-radius:16px; padding:20px; text-align:center; }
+.result-stat-val { font-size:36px; font-weight:900; }
+.result-stat-lbl { font-size:13px; color:rgba(255,255,255,0.35); margin-top:5px; font-weight:700; }
+.chart-card { background:#130e22; border:1.5px solid rgba(255,110,180,0.12); border-radius:18px; padding:22px; }
+.chart-card h3 { font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:16px; font-weight:800; }
+.results-bottom { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.pose-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.pose-name { width:100px; color:rgba(255,255,255,0.6); flex-shrink:0; font-size:13px; font-weight:700; }
+.pose-track { flex:1; height:9px; background:rgba(255,255,255,0.06); border-radius:5px; overflow:hidden; }
+.pose-fill { height:100%; border-radius:5px; }
+.pose-pct { width:40px; text-align:right; font-weight:900; font-size:14px; }
+.streak-row { display:flex; gap:5px; flex-wrap:wrap; }
+.streak-day { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; }
+.streak-active { background:linear-gradient(135deg,#ff6eb4,#c96eff); color:#fff; }
+.streak-done { background:rgba(0,220,100,0.12); color:#00dc64; border:1.5px solid #00dc64; }
+.streak-empty { background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
@@ -148,7 +218,7 @@ body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-s
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="logo">
-    <span style="font-size:22px">🫀</span>
+    <span style="font-size:24px">🫀</span>
     <span class="logo-text"><span class="brand">FlexMind</span> <span class="ai">AI</span></span>
     <span class="logo-sub">OFFICE WELLNESS</span>
   </div>
@@ -168,14 +238,14 @@ body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-s
   <div class="tab" onclick="switchTab('results',this)">📊 ผลลัพธ์</div>
 </div>
 
-<!-- ══════════ HOME ══════════ -->
+<!-- ══ HOME ══ -->
 <div class="tab-content active" id="tab-home">
   <div class="main">
     <div class="hero-card">
       <div class="hero-left">
         <div class="hero-sub">FlexMind AI × Office Wellness Platform</div>
-        <div class="hero-title">ร่างกายและจิตใจพร้อมรับมืออออฟฟิศซินโดรมไหม?</div>
-        <div class="hero-meta">อารมณ์: 😊 <span style="color:#ffd700">Happy</span> · ความเครียด: <span style="color:#00e5d1;font-weight:700">13%</span> · ท่าทาง: <span style="color:#00c851;font-weight:700">69%</span></div>
+        <div class="hero-title">ร่างกายและจิตใจพร้อมรับมือ<br>ออฟฟิศซินโดรมไหม?</div>
+        <div class="hero-meta">อารมณ์: 😊 <span class="happy">Happy</span> · ความเครียด: <span class="stress">13%</span> · ท่าทาง: <span class="posture">69%</span></div>
         <div class="hero-btns">
           <button class="btn-stretch" onclick="switchTab('stretch',document.querySelectorAll('.tab')[2])">🚀 เริ่ม Smart Stretch</button>
           <button class="btn-emotion" onclick="switchTab('emotion',document.querySelectorAll('.tab')[1])">🧠 Emotion AI</button>
@@ -184,19 +254,20 @@ body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-s
       </div>
       <div class="hero-right">
         <div class="gauge-wrap">
-          <div class="gauge-circle"><svg viewBox="0 0 100 100"><circle fill="none" stroke="#222" stroke-width="8" cx="50" cy="50" r="42"/><circle fill="none" stroke="#00c851" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="105" cx="50" cy="50" r="42"/></svg><div class="gauge-val"><div class="num" style="color:#00c851">56</div><div class="lbl">OSRS</div></div></div>
-          <div class="gauge-label">OSRS</div><div class="gauge-status" style="color:#00c851">Risk LOW</div>
+          <div class="gauge-circle"><svg viewBox="0 0 108 108"><circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="9" cx="54" cy="54" r="46"/><circle fill="none" stroke="#00dc64" stroke-width="9" stroke-linecap="round" stroke-dasharray="289.1" stroke-dashoffset="115" cx="54" cy="54" r="46"/></svg><div class="gauge-val"><div class="num" style="color:#00dc64">56</div><div class="lbl">OSRS</div></div></div>
+          <div class="gauge-label">OSRS</div><div class="gauge-status" style="color:#00dc64">Risk LOW</div>
         </div>
         <div class="gauge-wrap">
-          <div class="gauge-circle"><svg viewBox="0 0 100 100"><circle fill="none" stroke="#222" stroke-width="8" cx="50" cy="50" r="42"/><circle fill="none" stroke="#00bfff" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="79" cx="50" cy="50" r="42"/></svg><div class="gauge-val"><div class="num" style="color:#00bfff">69</div><div class="lbl">Posture</div></div></div>
-          <div class="gauge-label">Posture</div><div class="gauge-status" style="color:#00bfff">ท่าทาง</div>
+          <div class="gauge-circle"><svg viewBox="0 0 108 108"><circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="9" cx="54" cy="54" r="46"/><circle fill="none" stroke="#4d9fff" stroke-width="9" stroke-linecap="round" stroke-dasharray="289.1" stroke-dashoffset="86" cx="54" cy="54" r="46"/></svg><div class="gauge-val"><div class="num" style="color:#4d9fff">69</div><div class="lbl">Posture</div></div></div>
+          <div class="gauge-label">Posture</div><div class="gauge-status" style="color:#4d9fff">ท่าทาง</div>
         </div>
         <div class="gauge-wrap">
-          <div class="gauge-circle"><svg viewBox="0 0 100 100"><circle fill="none" stroke="#222" stroke-width="8" cx="50" cy="50" r="42"/><circle fill="none" stroke="#9b59b6" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="52" cx="50" cy="50" r="42"/></svg><div class="gauge-val"><div class="num" style="color:#9b59b6">80</div><div class="lbl">Wellness</div></div></div>
-          <div class="gauge-label">Wellness</div><div class="gauge-status" style="color:#9b59b6">สุขภาวะ</div>
+          <div class="gauge-circle"><svg viewBox="0 0 108 108"><circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="9" cx="54" cy="54" r="46"/><circle fill="none" stroke="#c96eff" stroke-width="9" stroke-linecap="round" stroke-dasharray="289.1" stroke-dashoffset="57" cx="54" cy="54" r="46"/></svg><div class="gauge-val"><div class="num" style="color:#c96eff">80</div><div class="lbl">Wellness</div></div></div>
+          <div class="gauge-label">Wellness</div><div class="gauge-status" style="color:#c96eff">สุขภาวะ</div>
         </div>
       </div>
     </div>
+
     <div class="metrics-row">
       <div class="metric-card"><div class="metric-label">Heart Rate</div><div class="metric-val c-red">100<span class="metric-unit">bpm</span></div></div>
       <div class="metric-card"><div class="metric-label">SpO2</div><div class="metric-val c-green">95<span class="metric-unit">%</span></div></div>
@@ -205,118 +276,125 @@ body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-s
       <div class="metric-card"><div class="metric-label">ความเหนื่อยล้า</div><div class="metric-val c-orange">44<span class="metric-unit">%</span></div></div>
       <div class="metric-card"><div class="metric-label">⚡ OSRS</div><div class="metric-val c-teal">44<span class="metric-unit">/100</span></div></div>
     </div>
+
     <div class="bottom-row">
       <div class="osrs-card">
         <div class="osrs-header">⚡ OSRS — 7 มิติ</div>
         <div class="osrs-body">
-          <div class="osrs-gauge"><svg viewBox="0 0 90 90"><circle cx="45" cy="45" r="36" fill="none" stroke="#222" stroke-width="8"/><circle cx="45" cy="45" r="36" fill="none" stroke="#00c851" stroke-width="8" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="90" transform="rotate(-90 45 45)"/></svg><div class="osrs-gauge-val">56</div></div>
+          <div class="osrs-gauge"><svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="9"/><circle cx="48" cy="48" r="40" fill="none" stroke="#00dc64" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="100" transform="rotate(-90 48 48)"/></svg><div class="osrs-gauge-val">56</div></div>
           <div class="osrs-bars">
-            <div class="bar-row"><div class="bar-label">🧍 พฤติกรรมนั่ง</div><div class="bar-bg"><div class="bar-fill" style="width:48%;background:#ff4466"></div></div><div class="bar-num" style="color:#ff4466">48</div></div>
-            <div class="bar-row"><div class="bar-label">🏃 ท่าทาง</div><div class="bar-bg"><div class="bar-fill" style="width:31%;background:#ffd700"></div></div><div class="bar-num" style="color:#ffd700">31</div></div>
-            <div class="bar-row"><div class="bar-label">😰 ความเครียด</div><div class="bar-bg"><div class="bar-fill" style="width:13%;background:#ff8c00"></div></div><div class="bar-num" style="color:#ff8c00">13</div></div>
-            <div class="bar-row"><div class="bar-label">👁 สายตา</div><div class="bar-bg"><div class="bar-fill" style="width:60%;background:#00e5d1"></div></div><div class="bar-num" style="color:#00e5d1">60</div></div>
+            <div class="bar-row"><div class="bar-label">🧍 พฤติกรรมนั่ง</div><div class="bar-bg"><div class="bar-fill" style="width:48%;background:linear-gradient(90deg,#ff4466,#ff6eb4)"></div></div><div class="bar-num" style="color:#ff4466">48</div></div>
+            <div class="bar-row"><div class="bar-label">🏃 ท่าทาง</div><div class="bar-bg"><div class="bar-fill" style="width:31%;background:linear-gradient(90deg,#ffd700,#ff8c00)"></div></div><div class="bar-num" style="color:#ffd700">31</div></div>
+            <div class="bar-row"><div class="bar-label">😰 ความเครียด</div><div class="bar-bg"><div class="bar-fill" style="width:13%;background:linear-gradient(90deg,#c96eff,#ff6eb4)"></div></div><div class="bar-num" style="color:#c96eff">13</div></div>
+            <div class="bar-row"><div class="bar-label">👁 สายตา</div><div class="bar-bg"><div class="bar-fill" style="width:60%;background:linear-gradient(90deg,#00e5b0,#4d9fff)"></div></div><div class="bar-num" style="color:#00e5b0">60</div></div>
           </div>
         </div>
       </div>
-      <div style="background:linear-gradient(160deg,#1a1020,#2a1535,#1a1020);border:1px solid #3a2050;border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;">
-        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(150,0,255,0.2) 0%,transparent 60%);"></div>
-        <div style="font-size:52px;margin-bottom:8px;position:relative;z-index:1;">🤸</div>
-        <div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#ff6b35,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;position:relative;z-index:1;">Smart Stretch</div>
-        <div style="color:#aaa;font-size:13px;margin-bottom:20px;position:relative;z-index:1;">8 ท่า · MediaPipe AI · ลด OSRS ได้ทันที</div>
-        <button onclick="switchTab('stretch',document.querySelectorAll('.tab')[2])" style="background:linear-gradient(135deg,#ff8c00,#ff6b35);border:none;color:#fff;padding:12px 32px;border-radius:24px;font-size:15px;font-weight:700;cursor:pointer;position:relative;z-index:1;">เริ่มเลย →</button>
+
+      <div style="background:linear-gradient(160deg,#1a1030,#1e1240,#160e35);border:1.5px solid rgba(201,110,255,0.25);border-radius:18px;padding:30px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(201,110,255,0.15) 0%,transparent 70%);border-radius:50%"></div>
+        <div style="font-size:54px;margin-bottom:10px;position:relative;z-index:1">🤸</div>
+        <div style="font-size:24px;font-weight:900;color:#c96eff;margin-bottom:8px;position:relative;z-index:1">Smart Stretch</div>
+        <div style="color:rgba(255,255,255,0.45);font-size:14px;font-weight:600;margin-bottom:22px;position:relative;z-index:1">8 ท่า · MediaPipe AI · ลด OSRS ได้ทันที</div>
+        <button onclick="switchTab('stretch',document.querySelectorAll('.tab')[2])" style="background:linear-gradient(135deg,#c96eff,#e0006a);border:none;color:#fff;padding:14px 36px;border-radius:30px;font-size:17px;font-weight:900;cursor:pointer;font-family:'Prompt',sans-serif;box-shadow:0 4px 20px rgba(201,110,255,0.4);position:relative;z-index:1">เริ่มเลย →</button>
       </div>
+
       <div class="right-col">
-        <div class="mini-card"><div style="font-size:28px;margin-bottom:6px">💧</div><div class="mini-val">3<span>/8</span></div><div class="mini-label">กดเพิ่มแก้วน้ำ</div></div>
-        <div class="mini-card"><div style="font-size:28px;margin-bottom:6px">👁</div><div class="mini-rule">20-20-20</div><div class="mini-label">มองไกล 20 ฟุต ทุก 20 นาที</div></div>
+        <div class="mini-card"><div style="font-size:30px;margin-bottom:6px">💧</div><div class="mini-val">3<span>/8</span></div><div class="mini-label">กดเพิ่มแก้วน้ำ</div></div>
+        <div class="mini-card"><div style="font-size:30px;margin-bottom:6px">👁</div><div class="mini-rule">20-20-20</div><div class="mini-label">มองไกล 20 ฟุต ทุก 20 นาที</div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ EMOTION AI ══════════ -->
+<!-- ══ EMOTION AI ══ -->
 <div class="tab-content" id="tab-emotion">
   <div class="emotion-main">
-
-    <!-- Camera Face Detection -->
     <div class="emotion-card">
-      <h3>🎭 Face Detection — Real-time Camera</h3>
+      <h3>🎭 Face Detection — face-api.js Neural Network</h3>
+      <div class="accuracy-badge">🧠 Neural Network · ~80% Accuracy</div>
       <div class="cam-box" id="camBox">
         <video id="emotionVideo" autoplay playsinline muted></video>
-        <canvas id="emotionCanvas2"></canvas>
-        <div class="face-frame-live" id="faceFrame"></div>
-        <div class="scan-line" id="scanLine"></div>
-        <div class="cam-overlay-live" id="camLiveBadge"><span class="cam-live-dot"></span><span id="liveEmotionText">😊 Happy — 94%</span></div>
+        <canvas id="faceCanvas"></canvas>
+        <div class="model-loading" id="modelLoading" style="display:none">
+          <div class="model-spinner"></div>
+          <div style="font-size:16px;font-weight:800;color:#c96eff">กำลังโหลด AI Model...</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.45);font-weight:600" id="modelStatus">กำลังโหลด face-api.js</div>
+          <div style="width:240px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:4px"><div id="modelProgBar" style="height:100%;background:linear-gradient(90deg,#ff6eb4,#c96eff);border-radius:3px;width:0%;transition:width 0.4s ease"></div></div>
+        </div>
         <div class="cam-placeholder" id="camPlaceholder">
-          <div class="cam-placeholder-icon">📷</div>
-          <div class="cam-placeholder-text">เปิดกล้องเพื่อวิเคราะห์อารมณ์<br>แบบ Real-time ด้วย AI</div>
-          <button class="btn-cam" onclick="startEmotionCam()">🎥 เปิดกล้อง Emotion AI</button>
+          <div class="cam-placeholder-icon">🤖</div>
+          <div class="cam-placeholder-text">face-api.js Neural Network<br>วิเคราะห์อารมณ์จริง 7 ประเภท ✨</div>
+          <button class="btn-cam" onclick="startFaceApi()">🎥 เปิดกล้อง + โหลด AI</button>
+        </div>
+        <div class="cam-overlay-live" id="camLiveBadge">
+          <span class="cam-live-dot"></span>
+          <span id="liveEmotionText">🧠 กำลังวิเคราะห์...</span>
         </div>
       </div>
     </div>
 
-    <!-- Emotion Bars -->
     <div class="emotion-card">
-      <h3>📊 สัดส่วนอารมณ์ปัจจุบัน</h3>
+      <h3>📊 ผลวิเคราะห์อารมณ์ — face-api.js จริง</h3>
       <div class="emotion-bars">
-        <div class="emo-row"><div class="emo-label">😊 Happy</div><div class="emo-track"><div class="emo-fill" id="emo-happy" style="width:72%;background:linear-gradient(90deg,#ffd700,#ff8c00)"></div></div><div class="emo-pct" style="color:#ffd700" id="pct-happy">72%</div></div>
-        <div class="emo-row"><div class="emo-label">😌 Neutral</div><div class="emo-track"><div class="emo-fill" id="emo-neutral" style="width:15%;background:linear-gradient(90deg,#00bfff,#0080ff)"></div></div><div class="emo-pct" style="color:#00bfff" id="pct-neutral">15%</div></div>
-        <div class="emo-row"><div class="emo-label">😟 Sad</div><div class="emo-track"><div class="emo-fill" id="emo-sad" style="width:5%;background:linear-gradient(90deg,#667eea,#764ba2)"></div></div><div class="emo-pct" style="color:#667eea" id="pct-sad">5%</div></div>
-        <div class="emo-row"><div class="emo-label">😠 Angry</div><div class="emo-track"><div class="emo-fill" id="emo-angry" style="width:3%;background:linear-gradient(90deg,#ff4466,#cc0033)"></div></div><div class="emo-pct" style="color:#ff4466" id="pct-angry">3%</div></div>
-        <div class="emo-row"><div class="emo-label">😨 Stressed</div><div class="emo-track"><div class="emo-fill" id="emo-stressed" style="width:5%;background:linear-gradient(90deg,#ff8c00,#ff4400)"></div></div><div class="emo-pct" style="color:#ff8c00" id="pct-stressed">5%</div></div>
+        <div class="emo-row"><div class="emo-label">😊 Happy</div><div class="emo-track"><div class="emo-fill" id="emo-happy" style="width:0%;background:linear-gradient(90deg,#ffd700,#ff8c00)"></div></div><div class="emo-pct" style="color:#ffd700" id="pct-happy">0%</div></div>
+        <div class="emo-row"><div class="emo-label">😌 Neutral</div><div class="emo-track"><div class="emo-fill" id="emo-neutral" style="width:0%;background:linear-gradient(90deg,#4d9fff,#2266ff)"></div></div><div class="emo-pct" style="color:#4d9fff" id="pct-neutral">0%</div></div>
+        <div class="emo-row"><div class="emo-label">😟 Sad</div><div class="emo-track"><div class="emo-fill" id="emo-sad" style="width:0%;background:linear-gradient(90deg,#c96eff,#7700cc)"></div></div><div class="emo-pct" style="color:#c96eff" id="pct-sad">0%</div></div>
+        <div class="emo-row"><div class="emo-label">😠 Angry</div><div class="emo-track"><div class="emo-fill" id="emo-angry" style="width:0%;background:linear-gradient(90deg,#ff4466,#cc0033)"></div></div><div class="emo-pct" style="color:#ff4466" id="pct-angry">0%</div></div>
+        <div class="emo-row"><div class="emo-label">😨 Fearful</div><div class="emo-track"><div class="emo-fill" id="emo-fearful" style="width:0%;background:linear-gradient(90deg,#ff8c00,#ffd700)"></div></div><div class="emo-pct" style="color:#ff8c00" id="pct-fearful">0%</div></div>
+        <div class="emo-row"><div class="emo-label">🤢 Disgusted</div><div class="emo-track"><div class="emo-fill" id="emo-disgusted" style="width:0%;background:linear-gradient(90deg,#00dc64,#00e5b0)"></div></div><div class="emo-pct" style="color:#00dc64" id="pct-disgusted">0%</div></div>
+        <div class="emo-row"><div class="emo-label">😲 Surprised</div><div class="emo-track"><div class="emo-fill" id="emo-surprised" style="width:0%;background:linear-gradient(90deg,#ff6eb4,#c96eff)"></div></div><div class="emo-pct" style="color:#ff6eb4" id="pct-surprised">0%</div></div>
       </div>
       <div class="stress-grid">
-        <div class="stress-stat"><div class="stress-val" id="stressLevel" style="color:#00c851">Low</div><div class="stress-lbl">ระดับความเครียด</div></div>
-        <div class="stress-stat"><div class="stress-val" id="stressScore" style="color:#ffd700">13%</div><div class="stress-lbl">Stress Score</div></div>
-        <div class="stress-stat"><div class="stress-val" id="mainEmotion" style="color:#00e5d1">😊</div><div class="stress-lbl">อารมณ์หลัก</div></div>
+        <div class="stress-stat"><div class="stress-val" id="stressLevel" style="color:#00dc64">—</div><div class="stress-lbl">ระดับความเครียด</div></div>
+        <div class="stress-stat"><div class="stress-val" id="stressScore" style="color:#ffd700">—</div><div class="stress-lbl">Stress Score</div></div>
+        <div class="stress-stat"><div class="stress-val" id="mainEmotion" style="color:#ff6eb4">🧠</div><div class="stress-lbl">อารมณ์หลัก</div></div>
       </div>
     </div>
 
-    <!-- Timeline -->
     <div class="emotion-card emotion-timeline">
-      <h3>📈 Emotion Timeline — วันนี้</h3>
-      <div style="background:#0a0a18;border-radius:12px;padding:12px;height:150px;position:relative;overflow:hidden;">
-        <canvas id="emotionTimeline" style="width:100%;height:126px;"></canvas>
+      <h3>📈 Emotion Timeline — Real-time</h3>
+      <div style="background:#0a0714;border-radius:12px;padding:12px;height:150px;border:1px solid rgba(255,110,180,0.1)">
+        <canvas id="emotionTimeline" style="width:100%;height:126px"></canvas>
       </div>
     </div>
 
-    <!-- Stress Detail -->
     <div class="emotion-card">
-      <h3>🧘 Stress Analysis Detail</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
-          <div style="font-size:11px;color:#888;margin-bottom:6px;">ความเครียดสะสม</div>
-          <div class="stress-val" id="stressCum" style="color:#ffd700;font-size:24px;">13%</div>
-          <div style="height:4px;background:#1a1a2e;border-radius:2px;margin-top:8px;overflow:hidden;"><div id="stressCumBar" style="height:100%;width:13%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:2px;"></div></div>
-          <div style="font-size:11px;color:#00c851;margin-top:6px;">ต่ำกว่าเกณฑ์ ✓</div>
+      <h3>🧘 Stress Analysis</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;border:1.5px solid rgba(255,68,102,0.2)">
+          <div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:6px">Negative Affect</div>
+          <div id="negAffect" style="font-size:26px;font-weight:900;color:#ff4466">—</div>
+          <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:8px;overflow:hidden"><div id="negBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ff4466,#c96eff);border-radius:3px;transition:width 0.6s ease"></div></div>
         </div>
-        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
-          <div style="font-size:11px;color:#888;margin-bottom:6px;">Valence Score</div>
-          <div id="valenceScore" style="font-size:24px;font-weight:800;color:#00c851;">+0.72</div>
-          <div style="font-size:11px;color:#888;margin-top:8px;">อารมณ์เชิงบวก</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;border:1.5px solid rgba(0,220,100,0.2)">
+          <div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:6px">Positive Affect</div>
+          <div id="posAffect" style="font-size:26px;font-weight:900;color:#00dc64">—</div>
+          <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:8px;overflow:hidden"><div id="posBar" style="height:100%;width:0%;background:linear-gradient(90deg,#00dc64,#00e5b0);border-radius:3px;transition:width 0.6s ease"></div></div>
         </div>
-        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
-          <div style="font-size:11px;color:#888;margin-bottom:6px;">Arousal Level</div>
-          <div id="arousalLevel" style="font-size:24px;font-weight:800;color:#9b59b6;">Mid</div>
-          <div style="font-size:11px;color:#888;margin-top:8px;">ตื่นตัวพอดี</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;border:1.5px solid rgba(201,110,255,0.2)">
+          <div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:6px">Valence Score</div>
+          <div id="valenceScore" style="font-size:26px;font-weight:900;color:#c96eff">—</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;font-weight:600">จาก Neural Network</div>
         </div>
-        <div style="background:#0a0a18;border-radius:10px;padding:14px;border:1px solid #1e1e35;">
-          <div style="font-size:11px;color:#888;margin-bottom:6px;">Cortisol Index</div>
-          <div id="cortisolIdx" style="font-size:24px;font-weight:800;color:#00e5d1;">Low</div>
-          <div style="font-size:11px;color:#888;margin-top:8px;">จากการวิเคราะห์สีหน้า</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;border:1.5px solid rgba(77,159,255,0.2)">
+          <div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:6px">FPS วิเคราะห์</div>
+          <div id="fpsVal" style="font-size:26px;font-weight:900;color:#4d9fff">—</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;font-weight:600">เฟรมต่อวินาที</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ SMART STRETCH ══════════ -->
+<!-- ══ SMART STRETCH ══ -->
 <div class="tab-content" id="tab-stretch">
   <div class="stretch-tab-wrap">
     <div class="stretch-loading" id="stretchLoading">
-      <div style="font-size:56px;">🤸</div>
-      <div style="font-size:22px;font-weight:800;color:#fff;">Smart Stretch Game</div>
+      <div style="font-size:58px">🤸</div>
+      <div style="font-size:24px;font-weight:900;color:#ff6eb4">Smart Stretch Game</div>
       <div class="stretch-spinner"></div>
-      <div style="color:#aaa;font-size:15px;">กำลังโหลด MediaPipe AI + กล้อง...</div>
+      <div style="color:rgba(255,255,255,0.45);font-size:15px;font-weight:700">กำลังโหลด MediaPipe AI + กล้อง...</div>
     </div>
     <iframe id="stretchFrame" class="stretch-iframe"
       src="https://sakorn564.github.io/office-syndrome-game/game.html"
@@ -327,78 +405,78 @@ body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-s
   </div>
 </div>
 
-<!-- ══════════ RISK SCORE ══════════ -->
+<!-- ══ RISK SCORE ══ -->
 <div class="tab-content" id="tab-risk">
   <div class="risk-main">
     <div class="risk-card">
       <h3>⚡ OSRS Score — รวม 7 มิติ</h3>
-      <div style="display:flex;justify-content:center;margin-bottom:16px;">
-        <div style="position:relative;width:160px;height:160px;">
-          <svg width="160" height="160" style="transform:rotate(-90deg)"><circle cx="80" cy="80" r="68" fill="none" stroke="#1a1a2e" stroke-width="12"/><circle cx="80" cy="80" r="68" fill="none" stroke="#00c851" stroke-width="12" stroke-linecap="round" stroke-dasharray="427.3" stroke-dashoffset="192"/></svg>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;"><div style="font-size:42px;font-weight:900;color:#00c851;">44</div><div style="font-size:12px;color:#888;">OSRS</div><div style="font-size:11px;color:#00c851;font-weight:700;">LOW RISK</div></div>
+      <div style="display:flex;justify-content:center;margin-bottom:18px">
+        <div style="position:relative;width:170px;height:170px">
+          <svg width="170" height="170" style="transform:rotate(-90deg)"><circle cx="85" cy="85" r="72" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="13"/><circle cx="85" cy="85" r="72" fill="none" stroke="#00dc64" stroke-width="13" stroke-linecap="round" stroke-dasharray="452.4" stroke-dashoffset="203"/></svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"><div style="font-size:46px;font-weight:900;color:#00dc64">44</div><div style="font-size:13px;color:rgba(255,255,255,0.35);font-weight:700">OSRS</div><div style="font-size:12px;color:#00dc64;font-weight:900">LOW RISK</div></div>
         </div>
       </div>
-      <div class="dim-row"><div class="dim-label">🧍 พฤติกรรมนั่ง</div><div class="dim-track"><div class="dim-fill" style="width:48%;background:#ff4466;"></div></div><div class="dim-num" style="color:#ff4466;">48</div></div>
-      <div class="dim-row"><div class="dim-label">🏃 ท่าทาง</div><div class="dim-track"><div class="dim-fill" style="width:31%;background:#ffd700;"></div></div><div class="dim-num" style="color:#ffd700;">31</div></div>
-      <div class="dim-row"><div class="dim-label">😰 ความเครียด</div><div class="dim-track"><div class="dim-fill" style="width:13%;background:#ff8c00;"></div></div><div class="dim-num" style="color:#ff8c00;">13</div></div>
-      <div class="dim-row"><div class="dim-label">👁 สายตา</div><div class="dim-track"><div class="dim-fill" style="width:60%;background:#00e5d1;"></div></div><div class="dim-num" style="color:#00e5d1;">60</div></div>
-      <div class="dim-row"><div class="dim-label">💪 กล้ามเนื้อ</div><div class="dim-track"><div class="dim-fill" style="width:38%;background:#9b59b6;"></div></div><div class="dim-num" style="color:#9b59b6;">38</div></div>
-      <div class="dim-row"><div class="dim-label">🧠 จิตใจ</div><div class="dim-track"><div class="dim-fill" style="width:22%;background:#00bfff;"></div></div><div class="dim-num" style="color:#00bfff;">22</div></div>
-      <div class="dim-row"><div class="dim-label">🏃 การเคลื่อนไหว</div><div class="dim-track"><div class="dim-fill" style="width:55%;background:#ff6b35;"></div></div><div class="dim-num" style="color:#ff6b35;">55</div></div>
+      <div class="dim-row"><div class="dim-label">🧍 พฤติกรรมนั่ง</div><div class="dim-track"><div class="dim-fill" style="width:48%;background:linear-gradient(90deg,#ff4466,#ff6eb4)"></div></div><div class="dim-num" style="color:#ff4466">48</div></div>
+      <div class="dim-row"><div class="dim-label">🏃 ท่าทาง</div><div class="dim-track"><div class="dim-fill" style="width:31%;background:linear-gradient(90deg,#ffd700,#ff8c00)"></div></div><div class="dim-num" style="color:#ffd700">31</div></div>
+      <div class="dim-row"><div class="dim-label">😰 ความเครียด</div><div class="dim-track"><div class="dim-fill" style="width:13%;background:linear-gradient(90deg,#c96eff,#ff6eb4)"></div></div><div class="dim-num" style="color:#c96eff">13</div></div>
+      <div class="dim-row"><div class="dim-label">👁 สายตา</div><div class="dim-track"><div class="dim-fill" style="width:60%;background:linear-gradient(90deg,#00e5b0,#4d9fff)"></div></div><div class="dim-num" style="color:#00e5b0">60</div></div>
+      <div class="dim-row"><div class="dim-label">💪 กล้ามเนื้อ</div><div class="dim-track"><div class="dim-fill" style="width:38%;background:linear-gradient(90deg,#c96eff,#7700cc)"></div></div><div class="dim-num" style="color:#c96eff">38</div></div>
+      <div class="dim-row"><div class="dim-label">🧠 จิตใจ</div><div class="dim-track"><div class="dim-fill" style="width:22%;background:linear-gradient(90deg,#4d9fff,#2266ff)"></div></div><div class="dim-num" style="color:#4d9fff">22</div></div>
+      <div class="dim-row"><div class="dim-label">🏃 การเคลื่อนไหว</div><div class="dim-track"><div class="dim-fill" style="width:55%;background:linear-gradient(90deg,#ff8c00,#ffd700)"></div></div><div class="dim-num" style="color:#ff8c00">55</div></div>
     </div>
     <div class="risk-card">
       <h3>💡 คำแนะนำเฉพาะตัว</h3>
       <div class="rec-item"><div class="rec-icon">🪑</div><div class="rec-text"><strong>ปรับท่านั่ง:</strong> นั่งหลังตรง เท้าราบพื้น เข่างอ 90° ตามมาตรฐาน ISO 9241-5</div></div>
       <div class="rec-item"><div class="rec-icon">⏰</div><div class="rec-text"><strong>พักสม่ำเสมอ:</strong> ใช้หลัก 20-20-20 Rule ทุก 20 นาที พักสายตา 20 วินาที (NIOSH)</div></div>
-      <div class="rec-item"><div class="rec-icon">🏋️</div><div class="rec-text"><strong>ออกกำลังกาย:</strong> WHO แนะนำ 150 นาที/สัปดาห์ ยืดเหยียดทุกวันลดความเสี่ยง MSDs 35%</div></div>
+      <div class="rec-item"><div class="rec-icon">🏋️</div><div class="rec-text"><strong>ออกกำลังกาย:</strong> WHO แนะนำ 150 นาที/สัปดาห์ ยืดเหยียดทุกวันลด MSDs 35%</div></div>
       <div class="rec-item"><div class="rec-icon">🖥️</div><div class="rec-text"><strong>ปรับ Ergonomics:</strong> จอควรอยู่ระดับสายตา ห่าง 50-70 ซม. (OSHA)</div></div>
       <div class="rec-item"><div class="rec-icon">💧</div><div class="rec-text"><strong>ดื่มน้ำ:</strong> อย่างน้อย 8 แก้ว/วัน ลดอาการล้าตาและเมื่อยกล้ามเนื้อ</div></div>
     </div>
     <div class="risk-card full">
       <h3>📊 OSPE Predictive Engine — ความเสี่ยง 5 ปีข้างหน้า</h3>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-        <div style="background:#0a0a18;border-radius:12px;padding:18px;text-align:center;border:1px solid #2a2a4a;"><div style="font-size:11px;color:#a5b4fc;letter-spacing:1px;margin-bottom:8px;">GRBJ INDEX</div><div style="font-size:36px;font-weight:900;color:#a5b4fc;">32</div><div style="height:4px;background:#1a1a2e;border-radius:2px;margin:10px 0;overflow:hidden;"><div style="height:100%;width:32%;background:#a5b4fc;border-radius:2px;"></div></div><div style="font-size:11px;color:#888;">Gradual Region Body Joint</div></div>
-        <div style="background:#0a0a18;border-radius:12px;padding:18px;text-align:center;border:1px solid #2a2a4a;"><div style="font-size:11px;color:#86efac;letter-spacing:1px;margin-bottom:8px;">WFH INDEX</div><div style="font-size:36px;font-weight:900;color:#86efac;">28</div><div style="height:4px;background:#1a1a2e;border-radius:2px;margin:10px 0;overflow:hidden;"><div style="height:100%;width:28%;background:#86efac;border-radius:2px;"></div></div><div style="font-size:11px;color:#888;">Work-From-Home Risk</div></div>
-        <div style="background:#0a0a18;border-radius:12px;padding:18px;text-align:center;border:1px solid #2a2a4a;"><div style="font-size:11px;color:#fcd34d;letter-spacing:1px;margin-bottom:8px;">YHP 5-YEAR</div><div style="font-size:36px;font-weight:900;color:#fcd34d;">18%</div><div style="height:4px;background:#1a1a2e;border-radius:2px;margin:10px 0;overflow:hidden;"><div style="height:100%;width:18%;background:#fcd34d;border-radius:2px;"></div></div><div style="font-size:11px;color:#888;">Years-of-Harm Prediction</div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div style="background:rgba(201,110,255,0.08);border-radius:14px;padding:20px;text-align:center;border:1.5px solid rgba(201,110,255,0.25)"><div style="font-size:11px;color:#c96eff;letter-spacing:1px;font-weight:800;margin-bottom:8px">GRBJ INDEX</div><div style="font-size:40px;font-weight:900;color:#c96eff">32</div><div style="height:5px;background:rgba(201,110,255,0.1);border-radius:3px;margin:10px 0;overflow:hidden"><div style="height:100%;width:32%;background:#c96eff;border-radius:3px"></div></div><div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:600">Gradual Region Body Joint</div></div>
+        <div style="background:rgba(0,220,100,0.08);border-radius:14px;padding:20px;text-align:center;border:1.5px solid rgba(0,220,100,0.25)"><div style="font-size:11px;color:#00dc64;letter-spacing:1px;font-weight:800;margin-bottom:8px">WFH INDEX</div><div style="font-size:40px;font-weight:900;color:#00dc64">28</div><div style="height:5px;background:rgba(0,220,100,0.1);border-radius:3px;margin:10px 0;overflow:hidden"><div style="height:100%;width:28%;background:#00dc64;border-radius:3px"></div></div><div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:600">Work-From-Home Risk</div></div>
+        <div style="background:rgba(255,215,0,0.08);border-radius:14px;padding:20px;text-align:center;border:1.5px solid rgba(255,215,0,0.25)"><div style="font-size:11px;color:#ffd700;letter-spacing:1px;font-weight:800;margin-bottom:8px">YHP 5-YEAR</div><div style="font-size:40px;font-weight:900;color:#ffd700">18%</div><div style="height:5px;background:rgba(255,215,0,0.1);border-radius:3px;margin:10px 0;overflow:hidden"><div style="height:100%;width:18%;background:#ffd700;border-radius:3px"></div></div><div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:600">Years-of-Harm Prediction</div></div>
       </div>
-      <div style="margin-top:16px;padding:12px 16px;background:rgba(0,200,81,0.08);border-radius:10px;border:1px solid rgba(0,200,81,0.2);font-size:13px;color:#86efac;">🎯 บริเวณที่ต้องระวัง: <strong>คอ · ไหล่ · หลังส่วนล่าง</strong> — แนะนำยืดเหยียดด้วย Smart Stretch ทุกวัน</div>
+      <div style="margin-top:16px;padding:14px 18px;background:rgba(201,110,255,0.07);border-radius:12px;border:1.5px solid rgba(201,110,255,0.2);font-size:14px;color:rgba(255,255,255,0.7);font-weight:700">🎯 บริเวณที่ต้องระวัง: <strong style="color:#ff6eb4">คอ · ไหล่ · หลังส่วนล่าง</strong> — แนะนำยืดเหยียดด้วย Smart Stretch ทุกวัน 💪</div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ RESULTS ══════════ -->
+<!-- ══ RESULTS ══ -->
 <div class="tab-content" id="tab-results">
   <div class="results-main">
     <div class="results-grid">
-      <div class="result-stat"><div class="result-stat-val" style="color:#ffd700;">🔥 12</div><div class="result-stat-lbl">Streak วัน</div></div>
-      <div class="result-stat"><div class="result-stat-val" style="color:#00c851;">87%</div><div class="result-stat-lbl">ความแม่นยำเฉลี่ย</div></div>
-      <div class="result-stat"><div class="result-stat-val" style="color:#00e5d1;">1,240</div><div class="result-stat-lbl">💎 Points รวม</div></div>
-      <div class="result-stat"><div class="result-stat-val" style="color:#9b59b6;">24</div><div class="result-stat-lbl">วันที่เล่นรวม</div></div>
+      <div class="result-stat"><div class="result-stat-val" style="color:#ffd700">🔥 12</div><div class="result-stat-lbl">Streak วัน</div></div>
+      <div class="result-stat"><div class="result-stat-val" style="color:#00dc64">87%</div><div class="result-stat-lbl">ความแม่นยำเฉลี่ย</div></div>
+      <div class="result-stat"><div class="result-stat-val" style="color:#ff6eb4">1,240</div><div class="result-stat-lbl">💎 Points รวม</div></div>
+      <div class="result-stat"><div class="result-stat-val" style="color:#c96eff">24</div><div class="result-stat-lbl">วันที่เล่นรวม</div></div>
     </div>
     <div class="chart-card">
       <h3>📊 ความแม่นยำรายสัปดาห์ — 4 สัปดาห์ล่าสุด</h3>
-      <div style="background:#0a0a18;border-radius:10px;padding:12px;height:170px;"><canvas id="weeklyCanvas" style="width:100%;height:146px;"></canvas></div>
+      <div style="background:#0a0714;border-radius:12px;padding:12px;height:170px;border:1px solid rgba(255,110,180,0.08)"><canvas id="weeklyCanvas" style="width:100%;height:146px"></canvas></div>
     </div>
     <div class="results-bottom">
       <div class="chart-card">
         <h3>💪 ความแม่นยำแต่ละท่า</h3>
-        <div class="pose-row"><div class="pose-name">ยืดคอ</div><div class="pose-track"><div class="pose-fill" style="width:92%;background:linear-gradient(90deg,#00c851,#00ff88);"></div></div><div class="pose-pct" style="color:#00c851;">92%</div></div>
-        <div class="pose-row"><div class="pose-name">หมุนไหล่</div><div class="pose-track"><div class="pose-fill" style="width:88%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">88%</div></div>
-        <div class="pose-row"><div class="pose-name">ยืดหลัง</div><div class="pose-track"><div class="pose-fill" style="width:85%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">85%</div></div>
-        <div class="pose-row"><div class="pose-name">โน้มข้าง</div><div class="pose-track"><div class="pose-fill" style="width:79%;background:linear-gradient(90deg,#ffd700,#ff8c00);"></div></div><div class="pose-pct" style="color:#ffd700;">79%</div></div>
-        <div class="pose-row"><div class="pose-name">เปิดอก</div><div class="pose-track"><div class="pose-fill" style="width:91%;background:linear-gradient(90deg,#00c851,#00ff88);"></div></div><div class="pose-pct" style="color:#00c851;">91%</div></div>
-        <div class="pose-row"><div class="pose-name">ยืดสะโพก</div><div class="pose-track"><div class="pose-fill" style="width:75%;background:linear-gradient(90deg,#ffd700,#ff8c00);"></div></div><div class="pose-pct" style="color:#ffd700;">75%</div></div>
-        <div class="pose-row"><div class="pose-name">ยืดต้นขา</div><div class="pose-track"><div class="pose-fill" style="width:83%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">83%</div></div>
-        <div class="pose-row"><div class="pose-name">ยืดน่อง</div><div class="pose-track"><div class="pose-fill" style="width:88%;background:linear-gradient(90deg,#00bfff,#0080ff);"></div></div><div class="pose-pct" style="color:#00bfff;">88%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดคอ</div><div class="pose-track"><div class="pose-fill" style="width:92%;background:linear-gradient(90deg,#00dc64,#00e5b0)"></div></div><div class="pose-pct" style="color:#00dc64">92%</div></div>
+        <div class="pose-row"><div class="pose-name">หมุนไหล่</div><div class="pose-track"><div class="pose-fill" style="width:88%;background:linear-gradient(90deg,#4d9fff,#2266ff)"></div></div><div class="pose-pct" style="color:#4d9fff">88%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดหลัง</div><div class="pose-track"><div class="pose-fill" style="width:85%;background:linear-gradient(90deg,#4d9fff,#2266ff)"></div></div><div class="pose-pct" style="color:#4d9fff">85%</div></div>
+        <div class="pose-row"><div class="pose-name">โน้มข้าง</div><div class="pose-track"><div class="pose-fill" style="width:79%;background:linear-gradient(90deg,#ffd700,#ff8c00)"></div></div><div class="pose-pct" style="color:#ffd700">79%</div></div>
+        <div class="pose-row"><div class="pose-name">เปิดอก</div><div class="pose-track"><div class="pose-fill" style="width:91%;background:linear-gradient(90deg,#00dc64,#00e5b0)"></div></div><div class="pose-pct" style="color:#00dc64">91%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดสะโพก</div><div class="pose-track"><div class="pose-fill" style="width:75%;background:linear-gradient(90deg,#ff6eb4,#c96eff)"></div></div><div class="pose-pct" style="color:#ff6eb4">75%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดต้นขา</div><div class="pose-track"><div class="pose-fill" style="width:83%;background:linear-gradient(90deg,#c96eff,#7700cc)"></div></div><div class="pose-pct" style="color:#c96eff">83%</div></div>
+        <div class="pose-row"><div class="pose-name">ยืดน่อง</div><div class="pose-track"><div class="pose-fill" style="width:88%;background:linear-gradient(90deg,#4d9fff,#2266ff)"></div></div><div class="pose-pct" style="color:#4d9fff">88%</div></div>
       </div>
       <div class="chart-card">
         <h3>🗓️ Streak Calendar — 28 วันล่าสุด</h3>
         <div class="streak-row" id="streakCal"></div>
-        <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;"><span style="font-size:16px;">🌱</span><div><div style="font-size:13px;font-weight:700;">เริ่มต้นดี</div><div style="font-size:11px;color:#888;">เล่นครั้งแรก</div></div><span style="margin-left:auto;font-size:10px;background:#1a3a1a;color:#00c851;padding:2px 8px;border-radius:10px;">✓ Unlocked</span></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;"><span style="font-size:16px;">🔥</span><div><div style="font-size:13px;font-weight:700;">3 วันต่อเนื่อง</div><div style="font-size:11px;color:#888;">Streak 3 วัน</div></div><span style="margin-left:auto;font-size:10px;background:#1a3a1a;color:#00c851;padding:2px 8px;border-radius:10px;">✓ Unlocked</span></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;"><span style="font-size:16px;">⚡</span><div><div style="font-size:13px;font-weight:700;">หนึ่งสัปดาห์</div><div style="font-size:11px;color:#888;">Streak 7 วัน</div></div><span style="margin-left:auto;font-size:10px;background:#1a3a1a;color:#00c851;padding:2px 8px;border-radius:10px;">✓ Unlocked</span></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0a0a18;border-radius:8px;border:1px solid #1e1e35;opacity:0.5;"><span style="font-size:16px;">💎</span><div><div style="font-size:13px;font-weight:700;">สม่ำเสมอ</div><div style="font-size:11px;color:#888;">Streak 30 วัน</div></div><span style="margin-left:auto;font-size:10px;background:#1a1a2e;color:#666;padding:2px 8px;border-radius:10px;">🔒 Locked</span></div>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:10px;border:1.5px solid rgba(255,110,180,0.15)"><span style="font-size:18px">🌱</span><div><div style="font-size:14px;font-weight:800">เริ่มต้นดี</div><div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:600">เล่นครั้งแรก</div></div><span style="margin-left:auto;font-size:11px;background:rgba(0,220,100,0.12);color:#00dc64;padding:2px 10px;border-radius:10px;font-weight:800">✓ Unlocked</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:10px;border:1.5px solid rgba(255,110,180,0.15)"><span style="font-size:18px">🔥</span><div><div style="font-size:14px;font-weight:800">3 วันต่อเนื่อง</div><div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:600">Streak 3 วัน</div></div><span style="margin-left:auto;font-size:11px;background:rgba(0,220,100,0.12);color:#00dc64;padding:2px 10px;border-radius:10px;font-weight:800">✓ Unlocked</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:10px;border:1.5px solid rgba(255,110,180,0.15)"><span style="font-size:18px">⚡</span><div><div style="font-size:14px;font-weight:800">หนึ่งสัปดาห์</div><div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:600">Streak 7 วัน</div></div><span style="margin-left:auto;font-size:11px;background:rgba(0,220,100,0.12);color:#00dc64;padding:2px 10px;border-radius:10px;font-weight:800">✓ Unlocked</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1.5px solid rgba(255,255,255,0.06);opacity:0.5"><span style="font-size:18px">💎</span><div><div style="font-size:14px;font-weight:800">สม่ำเสมอ</div><div style="font-size:12px;color:rgba(255,255,255,0.3);font-weight:600">Streak 30 วัน</div></div><span style="margin-left:auto;font-size:11px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);padding:2px 10px;border-radius:10px;font-weight:700">🔒 Locked</span></div>
         </div>
       </div>
     </div>
@@ -406,305 +484,195 @@ body { background: #0d0d1a; color: #fff; font-family: 'Segoe UI', Tahoma, sans-s
 </div>
 
 <script>
-// ══ TAB SWITCHING ══
-function switchTab(name, el) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (el) el.classList.add('active');
-  if (name === 'results') { drawWeeklyChart(); buildStreakCal(); }
-  if (name === 'emotion') { setTimeout(drawEmotionTimeline, 100); }
+// ── TAB ──
+function switchTab(name,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  if(name==='results'){drawWeeklyChart();buildStreakCal();}
+  if(name==='emotion') setTimeout(drawEmotionTimeline,80);
 }
 
-// ══ EMOTION CAMERA ══
-let emotionStream = null;
-let emotionInterval = null;
-let timelineData = [];
-let frameCount = 0;
+// ── FACE-API.JS ──
+const MODEL_URL='https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model';
+let faceApiLoaded=false, emotionStream=null;
+let timelineData=[], lastFpsTime=Date.now(), fpsCount=0;
 
-const EMOTIONS = ['Happy','Neutral','Sad','Angry','Stressed','Surprised'];
-const EMOTION_EMOJIS = { Happy:'😊', Neutral:'😌', Sad:'😟', Angry:'😠', Stressed:'😨', Surprised:'😲' };
-
-async function startEmotionCam() {
-  try {
-    const placeholder = document.getElementById('camPlaceholder');
-    placeholder.innerHTML = '<div style="font-size:36px;animation:spin 1s linear infinite;display:inline-block;">⏳</div><div style="color:#aaa;font-size:14px;margin-top:10px;">กำลังขอสิทธิ์กล้อง...</div>';
-
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' }, audio: false });
-    emotionStream = stream;
-
-    const video = document.getElementById('emotionVideo');
-    video.srcObject = stream;
-    video.style.display = 'block';
-    placeholder.style.display = 'none';
-
-    document.getElementById('faceFrame').style.display = 'block';
-    document.getElementById('scanLine').style.display = 'block';
-    document.getElementById('camLiveBadge').style.display = 'block';
-
-    video.onloadedmetadata = () => {
-      video.play();
-      startEmotionAnalysis();
-      drawFaceOnCanvas();
-    };
-
-  } catch (err) {
-    const placeholder = document.getElementById('camPlaceholder');
-    placeholder.innerHTML = '<div style="font-size:36px;">❌</div><div style="color:#ff4466;font-size:13px;text-align:center;margin:8px 0;">ไม่สามารถเข้าถึงกล้องได้<br><small style="color:#888;">' + err.message + '</small></div><button class="btn-cam" onclick="startEmotionCam()" style="margin-top:8px;">🔄 ลองอีกครั้ง</button>';
+async function startFaceApi(){
+  const ph=document.getElementById('camPlaceholder');
+  const ml=document.getElementById('modelLoading');
+  ph.style.display='none'; ml.style.display='flex';
+  try{
+    setModelStatus('โหลด TinyFaceDetector...',20);
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    setModelStatus('โหลด FaceExpressions...',60);
+    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+    setModelStatus('โหลด FaceLandmark68...',85);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+    setModelStatus('เปิดกล้อง...',95);
+    faceApiLoaded=true;
+    const stream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'},audio:false});
+    emotionStream=stream;
+    const video=document.getElementById('emotionVideo');
+    video.srcObject=stream; video.style.display='block';
+    ml.style.display='none';
+    document.getElementById('camLiveBadge').style.display='block';
+    video.onloadedmetadata=()=>{ video.play(); startDetectionLoop(); };
+  }catch(err){
+    ml.innerHTML='<div style="font-size:36px">❌</div><div style="color:#ff4466;font-size:14px;font-weight:800;text-align:center">เกิดข้อผิดพลาด<br><small style="color:rgba(255,255,255,0.4);font-weight:600">'+err.message+'</small></div><button class="btn-cam" onclick="location.reload()" style="margin-top:10px">🔄 โหลดใหม่</button>';
   }
 }
-
-function startEmotionAnalysis() {
-  if (emotionInterval) clearInterval(emotionInterval);
-  emotionInterval = setInterval(() => {
-    analyzeEmotion();
-    frameCount++;
-  }, 800);
+function setModelStatus(msg,pct){
+  document.getElementById('modelStatus').textContent=msg;
+  document.getElementById('modelProgBar').style.width=pct+'%';
 }
 
-function analyzeEmotion() {
-  const video = document.getElementById('emotionVideo');
-  if (!video || video.readyState < 2) return;
-
-  // Simulate AI emotion detection from video frame brightness/color analysis
-  const canvas = document.createElement('canvas');
-  canvas.width = 64; canvas.height = 64;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, 64, 64);
-
-  let r = 0, g = 0, b = 0;
-  try {
-    const d = ctx.getImageData(20, 15, 24, 30).data;
-    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
-    const px = d.length / 4;
-    r = r / px; g = g / px; b = b / px;
-  } catch(e) { r = 180; g = 150; b = 130; }
-
-  // Map pixel values to simulated emotion scores
-  const brightness = (r + g + b) / 3;
-  const warmth = r - b;
-  const now = Date.now();
-
-  let happy = 40 + Math.max(0, warmth * 0.3) + Math.random() * 20;
-  let neutral = 10 + Math.random() * 15;
-  let sad = Math.max(0, (150 - brightness) * 0.15) + Math.random() * 8;
-  let angry = Math.max(0, (r - 160) * 0.2) + Math.random() * 5;
-  let stressed = Math.max(0, (130 - brightness) * 0.1) + Math.random() * 8;
-
-  const total = happy + neutral + sad + angry + stressed;
-  happy = Math.round(happy / total * 100);
-  neutral = Math.round(neutral / total * 100);
-  sad = Math.round(sad / total * 100);
-  angry = Math.round(angry / total * 100);
-  stressed = 100 - happy - neutral - sad - angry;
-
-  updateEmotionUI({ happy, neutral, sad, angry, stressed });
-
-  timelineData.push({ ts: now, happy, stressed });
-  if (timelineData.length > 60) timelineData.shift();
-  drawEmotionTimeline();
-}
-
-function updateEmotionUI(e) {
-  const keys = ['happy','neutral','sad','angry','stressed'];
-  keys.forEach(k => {
-    const bar = document.getElementById('emo-' + k);
-    const pct = document.getElementById('pct-' + k);
-    if (bar) bar.style.width = e[k] + '%';
-    if (pct) pct.textContent = e[k] + '%';
-  });
-
-  // Determine dominant emotion
-  const dominant = keys.reduce((a, b) => e[a] > e[b] ? a : b);
-  const emojis = { happy:'😊', neutral:'😌', sad:'😟', angry:'😠', stressed:'😨' };
-  const labels = { happy:'Happy', neutral:'Neutral', sad:'Sad', angry:'Angry', stressed:'Stressed' };
-
-  document.getElementById('liveEmotionText').textContent = emojis[dominant] + ' ' + labels[dominant] + ' — ' + e[dominant] + '%';
-  document.getElementById('mainEmotion').textContent = emojis[dominant];
-  document.getElementById('navMood').textContent = emojis[dominant] + ' ' + labels[dominant];
-
-  const stressVal = e.stressed + Math.round(e.sad * 0.5);
-  document.getElementById('stressScore').textContent = stressVal + '%';
-  document.getElementById('stressCum').textContent = stressVal + '%';
-  document.getElementById('stressCumBar').style.width = stressVal + '%';
-
-  if (stressVal < 20) {
-    document.getElementById('stressLevel').textContent = 'Low';
-    document.getElementById('stressLevel').style.color = '#00c851';
-  } else if (stressVal < 45) {
-    document.getElementById('stressLevel').textContent = 'Medium';
-    document.getElementById('stressLevel').style.color = '#ffd700';
-  } else {
-    document.getElementById('stressLevel').textContent = 'High';
-    document.getElementById('stressLevel').style.color = '#ff4466';
+function startDetectionLoop(){
+  const video=document.getElementById('emotionVideo');
+  const canvas=document.getElementById('faceCanvas');
+  const ctx=canvas.getContext('2d');
+  async function detect(){
+    if(!emotionStream){return;}
+    if(video.readyState<2){requestAnimationFrame(detect);return;}
+    canvas.width=video.videoWidth||640; canvas.height=video.videoHeight||480;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    try{
+      const opts=new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.5});
+      const detections=await faceapi.detectAllFaces(video,opts).withFaceLandmarks().withFaceExpressions();
+      fpsCount++;
+      const now=Date.now();
+      if(now-lastFpsTime>=1000){document.getElementById('fpsVal').textContent=fpsCount;fpsCount=0;lastFpsTime=now;}
+      if(detections&&detections.length>0){
+        const d=detections[0];
+        const expr=d.expressions;
+        const box=d.detection.box;
+        // Face box - pink/purple dark style
+        ctx.strokeStyle='#ff6eb4'; ctx.lineWidth=2.5;
+        ctx.strokeRect(box.x,box.y,box.width,box.height);
+        // Corner accents
+        const cs=18;
+        ctx.strokeStyle='#c96eff'; ctx.lineWidth=3.5;
+        [[box.x,box.y,1,1],[box.x+box.width,box.y,-1,1],[box.x,box.y+box.height,1,-1],[box.x+box.width,box.y+box.height,-1,-1]].forEach(([cx,cy,sx,sy])=>{
+          ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+sx*cs,cy);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx,cy+sy*cs);ctx.stroke();
+        });
+        // Landmarks
+        const lms=d.landmarks.positions;
+        lms.forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,2,0,Math.PI*2);ctx.fillStyle='rgba(201,110,255,0.8)';ctx.fill();});
+        // Emotion label
+        const dom=Object.entries(expr).sort((a,b)=>b[1]-a[1])[0];
+        const emojiMap={happy:'😊',sad:'😟',angry:'😠',fearful:'😨',disgusted:'🤢',surprised:'😲',neutral:'😌'};
+        const lbl=emojiMap[dom[0]]+' '+thaiLabel(dom[0])+' '+Math.round(dom[1]*100)+'%';
+        ctx.font='bold 14px Prompt,sans-serif';
+        const tw=ctx.measureText(lbl).width;
+        const lx=box.x+box.width/2-tw/2-10, ly=box.y-38;
+        ctx.fillStyle='rgba(30,12,60,0.88)'; ctx.beginPath();
+        ctx.roundRect?ctx.roundRect(lx,ly,tw+20,28,8):null; ctx.fill();
+        ctx.strokeStyle='#ff6eb4'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.roundRect?ctx.roundRect(lx,ly,tw+20,28,8):null; ctx.stroke();
+        ctx.fillStyle='#fff'; ctx.fillText(lbl,lx+10,ly+20);
+        updateEmotionBars(expr);
+        document.getElementById('liveEmotionText').textContent=emojiMap[dom[0]]+' '+thaiLabel(dom[0])+' — '+Math.round(dom[1]*100)+'%';
+        document.getElementById('navMood').textContent=emojiMap[dom[0]]+' '+thaiLabel(dom[0]);
+        timelineData.push({ts:Date.now(),happy:Math.round((expr.happy||0)*100),stressed:Math.round(((expr.fearful||0)+(expr.angry||0))*50)});
+        if(timelineData.length>80) timelineData.shift();
+        drawEmotionTimeline();
+      }else{
+        document.getElementById('liveEmotionText').textContent='🔍 กำลังหาใบหน้า...';
+      }
+    }catch(e){}
+    requestAnimationFrame(detect);
   }
-
-  const valence = ((e.happy - e.sad - e.angry - e.stressed) / 100).toFixed(2);
-  document.getElementById('valenceScore').textContent = (valence >= 0 ? '+' : '') + valence;
-  document.getElementById('valenceScore').style.color = valence >= 0 ? '#00c851' : '#ff4466';
+  detect();
 }
 
-function drawFaceOnCanvas() {
-  const video = document.getElementById('emotionVideo');
-  const canvas = document.getElementById('emotionCanvas2');
-  if (!video || !canvas) return;
+function thaiLabel(k){return{happy:'Happy',neutral:'Neutral',sad:'Sad',angry:'Angry',fearful:'Fearful',disgusted:'Disgusted',surprised:'Surprised'}[k]||k;}
 
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-
-  // Draw subtle landmark dots animation
-  function loop() {
-    if (!emotionStream) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const t = Date.now() / 1000;
-    const cx = canvas.width / 2, cy = canvas.height / 2;
-    const fw = 130, fh = 160;
-
-    // Face mesh dots (simulated landmarks)
-    const landmarks = [
-      [cx, cy - fh*0.42], // forehead
-      [cx - fw*0.42, cy - fh*0.1], // left cheek
-      [cx + fw*0.42, cy - fh*0.1], // right cheek
-      [cx - fw*0.22, cy - fh*0.18], // left eye outer
-      [cx + fw*0.22, cy - fh*0.18], // right eye outer
-      [cx - fw*0.22, cy - fh*0.22], // left eye inner
-      [cx + fw*0.22, cy - fh*0.22], // right eye inner
-      [cx, cy - fh*0.05], // nose tip
-      [cx - fw*0.12, cy + fh*0.1], // mouth left
-      [cx + fw*0.12, cy + fh*0.1], // mouth right
-      [cx, cy + fh*0.05], // mouth center
-      [cx - fw*0.3, cy + fh*0.05], // jaw left
-      [cx + fw*0.3, cy + fh*0.05], // jaw right
-      [cx, cy + fh*0.28], // chin
-    ];
-
-    landmarks.forEach((pt, i) => {
-      const pulse = 0.5 + 0.5 * Math.sin(t * 2 + i * 0.5);
-      ctx.beginPath();
-      ctx.arc(pt[0], pt[1], 3 + pulse, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,229,209,' + (0.5 + pulse * 0.4) + ')';
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(pt[0], pt[1], 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#00e5d1';
-      ctx.fill();
-    });
-
-    // Connection lines
-    const connections = [[0,5],[0,6],[3,5],[4,6],[7,10],[8,10],[9,10],[11,13],[12,13],[13,3],[13,4]];
-    ctx.strokeStyle = 'rgba(102,126,234,0.25)';
-    ctx.lineWidth = 1;
-    connections.forEach(([a,b]) => {
-      ctx.beginPath();
-      ctx.moveTo(landmarks[a][0], landmarks[a][1]);
-      ctx.lineTo(landmarks[b][0], landmarks[b][1]);
-      ctx.stroke();
-    });
-
-    requestAnimationFrame(loop);
-  }
-  loop();
+function updateEmotionBars(expr){
+  const keys=['happy','neutral','sad','angry','fearful','disgusted','surprised'];
+  keys.forEach(k=>{const v=Math.round((expr[k]||0)*100);const bar=document.getElementById('emo-'+k);const pct=document.getElementById('pct-'+k);if(bar)bar.style.width=v+'%';if(pct)pct.textContent=v+'%';});
+  const dom=Object.entries(expr).sort((a,b)=>b[1]-a[1])[0];
+  const emojis={happy:'😊',neutral:'😌',sad:'😟',angry:'😠',fearful:'😨',disgusted:'🤢',surprised:'😲'};
+  document.getElementById('mainEmotion').textContent=emojis[dom[0]]||'😊';
+  const stress=Math.round(((expr.fearful||0)+(expr.angry||0)+(expr.disgusted||0)+(expr.sad||0)*0.5)*100);
+  document.getElementById('stressScore').textContent=stress+'%';
+  if(stress<20){document.getElementById('stressLevel').textContent='Low';document.getElementById('stressLevel').style.color='#00dc64';}
+  else if(stress<45){document.getElementById('stressLevel').textContent='Medium';document.getElementById('stressLevel').style.color='#ffd700';}
+  else{document.getElementById('stressLevel').textContent='High';document.getElementById('stressLevel').style.color='#ff4466';}
+  const pos=Math.round(((expr.happy||0)+(expr.surprised||0)*0.5)*100);
+  const neg=Math.round(((expr.angry||0)+(expr.fearful||0)+(expr.disgusted||0)+(expr.sad||0))*100);
+  document.getElementById('posAffect').textContent=pos+'%';
+  document.getElementById('negAffect').textContent=neg+'%';
+  document.getElementById('posBar').style.width=pos+'%';
+  document.getElementById('negBar').style.width=Math.min(100,neg)+'%';
+  const val=(((expr.happy||0)-(expr.sad||0)-(expr.angry||0)-(expr.fearful||0))*1.2).toFixed(2);
+  document.getElementById('valenceScore').textContent=(val>=0?'+':'')+val;
+  document.getElementById('valenceScore').style.color=val>=0?'#00dc64':'#ff4466';
 }
 
-// ══ EMOTION TIMELINE ══
-function drawEmotionTimeline() {
-  const canvas = document.getElementById('emotionTimeline');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.offsetWidth || 700, H = 126;
-  canvas.width = W; canvas.height = H;
-  ctx.clearRect(0, 0, W, H);
-
-  const pL = 8, pR = 8, pT = 12, pB = 24;
-  const cW = W - pL - pR, cH = H - pT - pB;
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
-  [0,25,50,75,100].forEach(v => {
-    const y = pT + cH - (v/100)*cH;
-    ctx.beginPath(); ctx.moveTo(pL, y); ctx.lineTo(pL+cW, y); ctx.stroke();
-    ctx.fillStyle = '#444'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText(v+'%', pL-2, y+3);
-  });
-
-  const useData = timelineData.length > 1 ? timelineData : Array.from({length:10},(_,i)=>({ts:Date.now()-i*5000,happy:60+Math.random()*20,stressed:10+Math.random()*15})).reverse();
-
-  const drawLine = (getData, color, fillColor) => {
-    const pts = useData.map((d,i) => ({ x: pL + (i/(useData.length-1))*cW, y: pT + cH - (getData(d)/100)*cH }));
-    const grd = ctx.createLinearGradient(0,pT,0,pT+cH);
-    grd.addColorStop(0, fillColor); grd.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.beginPath(); ctx.moveTo(pts[0].x, pT+cH);
-    pts.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.lineTo(pts[pts.length-1].x, pT+cH); ctx.closePath();
-    ctx.fillStyle = grd; ctx.fill();
-    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
-    pts.forEach((p,i) => { if(i>0){const pr=pts[i-1];const cx=(pr.x+p.x)/2;ctx.bezierCurveTo(cx,pr.y,cx,p.y,p.x,p.y);} });
-    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
-    pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fillStyle=color; ctx.fill(); });
+// ── TIMELINE ──
+function drawEmotionTimeline(){
+  const canvas=document.getElementById('emotionTimeline');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||700,H=126;
+  canvas.width=W; canvas.height=H; ctx.clearRect(0,0,W,H);
+  const pL=8,pR=8,pT=12,pB=24,cW=W-pL-pR,cH=H-pT-pB;
+  ctx.strokeStyle='rgba(255,110,180,0.1)'; ctx.lineWidth=1;
+  [0,25,50,75,100].forEach(v=>{const y=pT+cH-(v/100)*cH;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='bold 9px Prompt,sans-serif';ctx.textAlign='right';ctx.fillText(v+'%',pL-2,y+3);});
+  const use=timelineData.length>1?timelineData:Array.from({length:10},(_,i)=>({ts:Date.now()-i*3000,happy:60+Math.random()*20,stressed:5+Math.random()*12})).reverse();
+  const dl=(gd,color,fc)=>{
+    if(use.length<2) return;
+    const pts=use.map((d,i)=>({x:pL+(i/(use.length-1))*cW,y:pT+cH-(gd(d)/100)*cH}));
+    const grd=ctx.createLinearGradient(0,pT,0,pT+cH);grd.addColorStop(0,fc);grd.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath();ctx.moveTo(pts[0].x,pT+cH);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(pts[pts.length-1].x,pT+cH);ctx.closePath();ctx.fillStyle=grd;ctx.fill();
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);pts.forEach((p,i)=>{if(i>0){const pr=pts[i-1];const bx=(pr.x+p.x)/2;ctx.bezierCurveTo(bx,pr.y,bx,p.y,p.x,p.y);}});ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();});
   };
-
-  drawLine(d => d.happy, '#ffd700', 'rgba(255,215,0,0.15)');
-  drawLine(d => d.stressed, '#ff4466', 'rgba(255,68,102,0.08)');
-
-  ctx.fillStyle = '#ffd700'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
-  ctx.fillText('— Happy', pL+4, pT+10);
-  ctx.fillStyle = '#ff4466'; ctx.fillText('— Stress', pL+68, pT+10);
+  dl(d=>d.happy,'#ff6eb4','rgba(255,110,180,0.15)');
+  dl(d=>d.stressed,'#c96eff','rgba(201,110,255,0.1)');
+  ctx.fillStyle='#ff6eb4';ctx.font='bold 10px Prompt,sans-serif';ctx.textAlign='left';ctx.fillText('— Happy',pL+4,pT+10);
+  ctx.fillStyle='#c96eff';ctx.fillText('— Stress',pL+72,pT+10);
 }
 
-// ══ WEEKLY CHART ══
-function drawWeeklyChart() {
-  const canvas = document.getElementById('weeklyCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.offsetWidth || 700, H = 146;
-  canvas.width = W; canvas.height = H;
-  ctx.clearRect(0, 0, W, H);
-  const weeks = ['สัปดาห์ 1','สัปดาห์ 2','สัปดาห์ 3','สัปดาห์ 4'];
-  const data = [72,81,85,87];
-  const pL=30,pR=10,pT=15,pB=28;
-  const cW=W-pL-pR,cH=H-pT-pB;
-  const bW=(cW/data.length)*0.55,gap=(cW/data.length);
-  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
-  [0,25,50,75,100].forEach(v=>{const y=pT+cH-(v/100)*cH;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();ctx.fillStyle='#555';ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText(v+'%',pL-3,y+3);});
-  data.forEach((v,i)=>{const x=pL+i*gap+(gap-bW)/2;const bH=(v/100)*cH;const y=pT+cH-bH;const grd=ctx.createLinearGradient(0,y,0,pT+cH);grd.addColorStop(0,'#667eea');grd.addColorStop(1,'#764ba2');ctx.fillStyle=grd;const r=4;ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+bW-r,y);ctx.quadraticCurveTo(x+bW,y,x+bW,y+r);ctx.lineTo(x+bW,y+bH);ctx.lineTo(x,y+bH);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(v+'%',x+bW/2,y-5);ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText(weeks[i],x+bW/2,H-5);});
+// ── WEEKLY CHART ──
+function drawWeeklyChart(){
+  const canvas=document.getElementById('weeklyCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||700,H=146;
+  canvas.width=W; canvas.height=H; ctx.clearRect(0,0,W,H);
+  const weeks=['สัปดาห์ 1','สัปดาห์ 2','สัปดาห์ 3','สัปดาห์ 4'],data=[72,81,85,87];
+  const pL=30,pR=10,pT=15,pB=28,cW=W-pL-pR,cH=H-pT-pB,bW=(cW/data.length)*0.55,gap=cW/data.length;
+  ctx.strokeStyle='rgba(255,110,180,0.1)'; ctx.lineWidth=1;
+  [0,25,50,75,100].forEach(v=>{const y=pT+cH-(v/100)*cH;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='bold 9px Prompt,sans-serif';ctx.textAlign='right';ctx.fillText(v+'%',pL-3,y+3);});
+  data.forEach((v,i)=>{
+    const x=pL+i*gap+(gap-bW)/2,bH=(v/100)*cH,y=pT+cH-bH;
+    const grd=ctx.createLinearGradient(0,y,0,pT+cH);grd.addColorStop(0,'#ff6eb4');grd.addColorStop(1,'#c96eff');
+    ctx.fillStyle=grd;const r=5;
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+bW-r,y);ctx.quadraticCurveTo(x+bW,y,x+bW,y+r);ctx.lineTo(x+bW,y+bH);ctx.lineTo(x,y+bH);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 13px Prompt,sans-serif';ctx.textAlign='center';ctx.fillText(v+'%',x+bW/2,y-5);
+    ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='bold 10px Prompt,sans-serif';ctx.fillText(weeks[i],x+bW/2,H-5);
+  });
 }
 
-// ══ STREAK CALENDAR ══
-function buildStreakCal() {
-  const cal = document.getElementById('streakCal');
-  if (!cal) return;
-  cal.innerHTML = '';
-  const days = ['อา','จ','อ','พ','พฤ','ศ','ส'];
-  const pattern = [1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,0,0];
-  pattern.forEach((done,i) => {
-    const d = document.createElement('div');
-    const dn = days[i%7];
-    if (i >= 21) { d.className='streak-day streak-active'; d.textContent=dn; }
-    else if (done) { d.className='streak-day streak-done'; d.textContent=dn; }
-    else { d.className='streak-day streak-empty'; d.textContent=dn; }
+// ── STREAK ──
+function buildStreakCal(){
+  const cal=document.getElementById('streakCal');
+  if(!cal) return; cal.innerHTML='';
+  const days=['อา','จ','อ','พ','พฤ','ศ','ส'];
+  const pattern=[1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,0,0];
+  pattern.forEach((done,i)=>{
+    const d=document.createElement('div'),dn=days[i%7];
+    if(i>=21){d.className='streak-day streak-active';d.textContent=dn;}
+    else if(done){d.className='streak-day streak-done';d.textContent=dn;}
+    else{d.className='streak-day streak-empty';d.textContent=dn;}
     cal.appendChild(d);
   });
 }
 
-// ══ INIT ══
-window.addEventListener('load', () => {
-  buildStreakCal();
-  // Auto-animate emotion bars even without camera
-  setInterval(() => {
-    if (!emotionStream) {
-      const base = { happy:65+Math.random()*18, neutral:10+Math.random()*10, sad:2+Math.random()*5, angry:1+Math.random()*3, stressed:2+Math.random()*7 };
-      const total = Object.values(base).reduce((a,b)=>a+b,0);
-      const norm = {};
-      Object.keys(base).forEach(k => norm[k]=Math.round(base[k]/total*100));
-      ['happy','neutral','sad','angry','stressed'].forEach(k=>{
-        const bar=document.getElementById('emo-'+k);
-        const pct=document.getElementById('pct-'+k);
-        if(bar) bar.style.width=norm[k]+'%';
-        if(pct) pct.textContent=norm[k]+'%';
-      });
-    }
-  }, 2500);
-});
+window.addEventListener('load',()=>{ buildStreakCal(); });
 </script>
 </body>
 </html>
